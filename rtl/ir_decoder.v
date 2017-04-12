@@ -5,9 +5,29 @@
 
 `include define.h
 
+`define LOAD_IR_LINES 8'hff
+
+`define JUMP  8'b00000010 
+`define STOP  8'b00001110 
+`define LOAD  8'b10000000 
+`define STORE 8'b10000001 
+`define RESET 8'b00001111 
+`define SET_D 8'b00010000 
+`define SET_R 8'b00010001 
+`define SET_A 8'b00010010 
+`define ADD   8'b00100000 
+`define SUB   8'b00100001 
+`define MOD   8'b00100010 
+`define DIV   8'b00100011 
+`define LARGE 8'b00101000 
+`define SMALL 8'b00101001 
+`define EQUAL 8'b00101010 
+                
+
 module ir_decoder(
 input clk,
 input rst_n,
+input load_finished,
 input [`DATA_WIDTH-1:0] data_in,
 input [`IRR_WIDTH-1:0] ir,
 output [`IR_ADDR_WIDTH-1:0] irp,
@@ -18,9 +38,12 @@ output [`CTRL_BUS-1:0] ctrl_bus
 reg [`DATA_WIDTH-1:0] reg_data_in_l1, reg_data_in_l2;
 reg [`IRR_WIDTH-1:0] reg_ir;
 reg reg_init;
+reg_counter;
+reg [`DATA_WIDTH-1:0] ir, p1, p2, p3, p4, p5;
 
 [`DATA_WIDTH-1:0] ir_mux;
 init_signal;
+start_counter
 
 // input reg
 always @(posedge clk) begin
@@ -40,7 +63,7 @@ always @(posedge clk) begin
         reg_ir <= ir_mux;
     end
 end
-ir_mux = reg_init ? ((reg_data_in_l1==reg_data_in_l2) ? 
+assign ir_mux = reg_init ? ((reg_data_in_l1==reg_data_in_l2) ? 
                   reg_data_in_l2 : `DATA_WIDTH'b0 )
               : ir;
 
@@ -52,5 +75,63 @@ always @(posedge clk) begin
         reg_init <= init_signal;
     end
 end
+
+assign init_signal = !reg_init && reg_counter==`LOAD_IR_LINES;
+
+// init command
+reg [`DATA_WIDTH-1:0] ir, p1, p2, p3, p4, p5;
+always @(posedge clk) begin
+    if (!rst_n) begin
+        ir <= `RESET;
+        p1 <= `DATA_WIDTH'b0;
+        p2 <= `DATA_WIDTH'b0;
+        p3 <= `DATA_WIDTH'b0;
+    end else begin
+        ir <= ir_next;
+        p1 <= p1_next;
+        p2 <= p2_next;
+        p3 <= p3_next;
+    end
+end
+
+
+// command decode
+always @(*) begin
+    case (ir) begin
+        `RESET: begin
+            if (init_finished) begin
+                ir_next = `LOAD;
+                p1_next = `DATA_WIDTH'h00;
+                p2_next = `DATA_WIDTH'h00;
+                p3_next = `DATA_WIDTH'hff;
+                ir_run_state = `IR_RUN;
+            end else begin
+                ir_next = `RESET;
+                p1_next = `DATA_WIDTH'h00;
+                p2_next = `DATA_WIDTH'h00;
+                p3_next = `DATA_WIDTH'h00;
+            end
+        end
+        `LOAD: begin
+            case (ir_run_state) begin
+                `IR_FETCH: begin
+                    ir_next = `LOAD;
+                    irp_next = irp+1'b1;
+                end
+                default: 
+            end
+        end
+        default: np=next;
+    end
+end
+
+always @(posedge clk) begin
+    if (!rst_n) begin
+        reg_counter <= `DATA_WIDTH'b0;
+    end else if (start_counter) begin
+        reg_counter <= reg_counter+1'b1;
+    end
+end
+
 
 endmodule
