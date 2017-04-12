@@ -1,0 +1,7 @@
+
+`define PORT_WIDTH 4
+`define DATA_WIDTH 8
+`define IRR_WIDTH `DATA_WIDTH
+`define DATA_ADDR_WIDTH 8
+`define IR_ADDR_WIDTH `DATA_ADDR_WIDTH
+`define CTRL_BUS 16

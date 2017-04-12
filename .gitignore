@@ -1,0 +1,13 @@
+*.pyc
+*~
+bak/
+*.swp
+*.swo
+Thumbs.db
+*_desktop.ini
+test.wiki
+temp.wiki
+tmp/
+current_work/
+current_job.wiki
+simu/
