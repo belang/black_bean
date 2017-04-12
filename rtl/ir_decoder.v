@@ -7,6 +7,7 @@
 
 `define LOAD_IR_LINES 8'hff
 
+// assembly command encode
 `define JUMP  8'b00000010 
 `define STOP  8'b00001110 
 `define LOAD  8'b10000000 
@@ -23,6 +24,14 @@
 `define SMALL 8'b00101001 
 `define EQUAL 8'b00101010 
                 
+// instructor execution encode
+`define IR_FETCH	4'H0
+`define IR_FETCH_P0	4'H0
+`define IR_FETCH_P1	4'H0
+`define IR_FETCH_P2	4'H0
+`define IR_DECODE	4'H1
+`define IR_EXECUTE	4'H2
+
 
 module ir_decoder(
 input clk,
@@ -39,7 +48,7 @@ reg [`DATA_WIDTH-1:0] reg_data_in_l1, reg_data_in_l2;
 reg [`IRR_WIDTH-1:0] reg_ir;
 reg reg_init;
 reg_counter;
-reg [`DATA_WIDTH-1:0] ir, p1, p2, p3, p4, p5;
+reg [`DATA_WIDTH-1:0] ir, p0, p1, p2;
 
 [`DATA_WIDTH-1:0] ir_mux;
 init_signal;
@@ -77,53 +86,59 @@ always @(posedge clk) begin
 end
 
 assign init_signal = !reg_init && reg_counter==`LOAD_IR_LINES;
-
-// init command
-reg [`DATA_WIDTH-1:0] ir, p1, p2, p3, p4, p5;
+reg ir_run_state
+reg ir_run_state_next
+// FSM: state transfer
 always @(posedge clk) begin
     if (!rst_n) begin
         ir <= `RESET;
-        p1 <= `DATA_WIDTH'b0;
-        p2 <= `DATA_WIDTH'b0;
-        p3 <= `DATA_WIDTH'b0;
+	ir_run_state <= `IR_FETCH;
     end else begin
         ir <= ir_next;
-        p1 <= p1_next;
-        p2 <= p2_next;
-        p3 <= p3_next;
+	ir_run_state <= ir_run_state_next;
     end
 end
 
-
-// command decode
-always @(*) begin
+// FSM: state control logic
+always @(ir or ir_run_state) begin
     case (ir) begin
         `RESET: begin
             if (init_finished) begin
                 ir_next = `LOAD;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `DATA_WIDTH'h00;
-                p3_next = `DATA_WIDTH'hff;
-                ir_run_state = `IR_RUN;
+                ir_run_state_next = `IR_RUN;
             end else begin
                 ir_next = `RESET;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `DATA_WIDTH'h00;
-                p3_next = `DATA_WIDTH'h00;
+                ir_run_state_next = ir_run_state;
             end
         end
         `LOAD: begin
-            case (ir_run_state) begin
+            case (ir_excute_state) begin
                 `IR_FETCH: begin
-                    ir_next = `LOAD;
-                    irp_next = irp+1'b1;
+                    ir_next = ir;
+		    ir_run_state_next = `IR_FETCH_P0;
                 end
+		// NEXT
                 default: 
             end
         end
         default: np=next;
     end
 end
+
+
+// FSM: output
+        p1 <= `DATA_WIDTH'b0;
+        p2 <= `DATA_WIDTH'b0;
+        p3 <= `DATA_WIDTH'b0;
+        p1 <= p1_next;
+        p2 <= p2_next;
+        p3 <= p3_next;
+                p1_next = `DATA_WIDTH'h00;
+                p2_next = `DATA_WIDTH'h00;
+                p3_next = `DATA_WIDTH'hff;
+                p1_next = `DATA_WIDTH'h00;
+                p2_next = `DATA_WIDTH'h00;
+                p3_next = `DATA_WIDTH'h00;
 
 always @(posedge clk) begin
     if (!rst_n) begin
