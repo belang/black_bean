@@ -66,7 +66,7 @@ always @(init or en or state) begin
     end
 end
 
-// FSM: state output NEXT
+// FSM: state output
 always @(init or en or state) begin
     if (init) begin
         case (state) begin

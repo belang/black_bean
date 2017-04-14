@@ -4,26 +4,12 @@
 // time: 2017-4-11 17:08:36
 
 `include define.h
+`include ir.v
 
 `define LOAD_IR_LINES 8'hff
 
 // assembly command encode
 `define IDLE  8'b00000000
-`define JUMP  8'b00000010 
-`define STOP  8'b00001110 
-`define LOAD  8'b10000000 
-`define STORE 8'b10000001 
-`define RESET 8'b00001111 
-`define SET_D 8'b00010000 
-`define SET_R 8'b00010001 
-`define SET_A 8'b00010010 
-`define ADD   8'b00100000 
-`define SUB   8'b00100001 
-`define MOD   8'b00100010 
-`define DIV   8'b00100011 
-`define LARGE 8'b00101000 
-`define SMALL 8'b00101001 
-`define EQUAL 8'b00101010 
                 
 // instructor execution encode
 `define IR_FETCH        4'H0
@@ -56,18 +42,38 @@ reg ir_exe_state_next
 init_signal;
 start_counter
 
+// parameter define
+decoder_state
+decoder_state_next
+
 // input reg
+
+// FSM: reg
 always @(posedge clk) begin
     if (!rst_n) begin
-        reg_data_in_l1 <= `DATA_WIDTH'b0;
-        reg_data_in_l2 <= `DATA_WIDTH'b0;
+        decoder_state <= `IDLE;
     end else begin
-        reg_data_in_l1 <= data_in;
-        reg_data_in_l2 <= reg_data_in_l1;
+        decoder_state <= decoder_state_next;
     end
 end
 
-always @(posedge clk) begin
+// FSM: transfer
+always @(decoder_state ) begin
+    case (decoder_state) begin
+        `IDLE: if (match_one) begin
+            decoder_state_next = `EXECUTION;
+        end
+        else begin
+            decoder_state_next = decoder_state;
+        end
+        `EXECUTION: if (finished_read) begin
+            decoder_state_next = `EXECUTION;
+        end
+        else begin
+            decoder_state_next = decoder_state;
+        end
+        default: ;
+    end
     if (!rst_n) begin
         reg_ir <= `DATA_WIDTH'b0;
     end else begin
