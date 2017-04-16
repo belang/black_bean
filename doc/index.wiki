@@ -21,6 +21,7 @@ print(y)
 [[structure|架构]]
 [[instructor|指令集]]
 [[ir_decoder|指令译码器]]
+[[ir_address_compute|指令地址运算]]
 [[adder|加法器]]
 [[regfile|寄存器堆]]
 [[addr_map|地址映射器]]
