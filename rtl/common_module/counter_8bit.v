@@ -6,26 +6,30 @@
 module counter_8bit(
 clk,
 rst_n,
-set,
-data_in,
-number
+i_set,
+i_data,
+i_trigger,
+o_number
 );
 input clk;
 input rst_n;
-input set;
-input [7:0] data_in;
-output [7:0] number;
+input i_set;
+input i_trigger;
+input [7:0] i_data;
+output [7:0] o_number;
 
 reg [7:0] reg_counter;
 always @(posedge clk) begin
     if (!rst_n) begin
         reg_counter <= 8'b0;
     end else if (set) begin
-        reg_counter <= data_in;
-        end else if (trigger) begin
-            reg_counter <= reg_counter+8'h01;
+        reg_counter <= i_data;
+    end else if (i_trigger) begin
+        reg_counter <= reg_counter+8'h01;
+    else begin
+        reg_counter <= reg_counter;
     end
 end
 
-assign number = reg_counter;
+assign o_number = reg_counter;
 endmodule

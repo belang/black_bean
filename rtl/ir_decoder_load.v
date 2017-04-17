@@ -74,29 +74,37 @@ always @(init or en or state) begin
                 p0_next = `DATA_WIDTH'h00;
                 p1_next = `DATA_WIDTH'h00;
                 p2_next = `INIT_IR_LINES;
-                counter_in = `DATA_WIDTH'h00;
+                counter_set_data = `DATA_WIDTH'h00;
                 counter_set = 1'b1;
                 counter_trigger = 1'b0;
-                addr_next = `DATA_WIDTH'h00;
-                cash_ren = 1'b0;
-                ir_regfile_ren = 1'b0;
-                ir_regfile_wen = 1'b0;
+                o_addr_bus_next = `DATA_WIDTH'h00;
+                o_cash_ren = 1'b0;
+                o_ir_regfile_ren = 1'b0;
+                o_ir_regfile_wen = 1'b0;
             end
             `READ_CASH: begin
                 p0_next = p0;
                 p1_next = p1;
                 p2_next = p2;
-                counter_in = `DATA_WIDTH'h00;
+                counter_set_data = `DATA_WIDTH'h00;
                 counter_set = 1'b0;
                 counter_trigger = 1'b0;
+                o_addr_bus_next = `DATA_WIDTH'h00;
+                o_cash_ren = 1'b0;
+                o_ir_regfile_ren = 1'b0;
+                o_ir_regfile_wen = 1'b0;
             end
             `WRITE_IR_REGFILE: begin
                 p0_next = p0;
                 p1_next = p1;
                 p2_next = p2;
-                counter_in = `DATA_WIDTH'h00;
+                counter_set_data = `DATA_WIDTH'h00;
                 counter_set = 1'b0;
                 counter_trigger = 1'b1;
+                o_addr_bus_next = addr_bus+`DATA_WIDTH'h01;
+                o_cash_ren = 1'b0;
+                o_ir_regfile_ren = 1'b0;
+                o_ir_regfile_wen = 1'b1;
                 if (counter==`INIT_IR_LINES) begin
                     counter_next = `DATA_WIDTH'h00;
                 end else begin
