@@ -3,23 +3,34 @@
 // author: lianghy
 // time: 2017-4-13 15:58:23
 
-// read p2 == write ir regfile
-`define IDLE                4'H0
-`define READ_P0             4'H0
-`define READ_P1             4'H0
-`define WRITE_IR_REGFILE    4'H0
+`include ir.v
 
-`define INIT_IR_LINES        `DATA_WIDTH'hff
+`define IDLE                3'h0
+`define INIT                3'h1
+`define READ_P0             3'h2
+`define READ_P1             3'h3
+`define READ_P2             3'h4
+`define READ_CASH           3'h5
+`define WRITE_IR_REGFILE    3'h6
+
+`define INIT_IR_LINES       `DATA_WIDTH'hff
 
 module ir_decoder_load(
 input clk,
 input rst_n,
-init,
-en,
-data_in,
+input init,
+input  [`DATA_WIDTH-1:0] i_data,
+output [`DATA_WIDTH-1:0] o_addr_bus_next,
+output o_cash_ren,
+output o_ir_regfile_ren,
+output o_ir_regfile_wen,
 );
 
-state, state_next;
+reg [`DATA_WIDTH-1:0] state,state_next;
+reg [`DATA_WIDTH-1:0] p0,p1,p2;
+reg [`DATA_WIDTH-1:0] p0_next,p1_next,p2_next;
+reg [`DATA_WIDTH-1:0] counter_set_data;
+reg counter_set,counter_trigger;
 
 // FSM: state reg
 always @(posedge clk) begin
@@ -31,156 +42,121 @@ always @(posedge clk) begin
 end
 
 // FSM: state transfer
-always @(init or en or state) begin
-    if (init) begin
-        case (state) begin
-            `IDLE: state_next = `READ_CASH;
-            `READ_CASH: state_next = `WRITE_IR_REGFILE;
-            `WRITE_IR_REGFILE: begin
-                if (counter==`INIT_IR_LINES) begin
-                    state_next = `IDLE;
-                end else begin
-                    state_next = `READ_CASH;
-                end
+always @(init or state) begin
+    case (state) begin
+        `IDLE: begin
+            if (init) begin
+                state_next = `INIT;
+            end else if (i_data==`LOAD) begin
+                state_next = `READ_P0;
+            end else begin
+                state_next = state;
             end
-            default: state_next = state;
         end
-    end else begin
-    if (en) begin
-        case (state) begin
-            `IDLE: state_next = `READ_P0;
-            `READ_P0: state_next = `READ_P1;
-            `READ_P1: state_next = `WRITE_IR_REGFILE;
-            `READ_CASH: state_next = `WRITE_IR_REGFILE;
-            `WRITE_IR_REGFILE: begin
-                if (counter==`INIT_IR_LINES) begin
-                    state_next = `IDLE;
-                end else begin
-                    state_next = `READ_CASH;
-                end
+        `INIT: state_next = `READ_CASH;
+        `READ_P0: state_next = `READ_P1;
+        `READ_P1: state_next = `READ_P2;
+        `READ_P2: state_next = `READ_CASH;
+        `READ_CASH: state_next = `WRITE_IR_REGFILE;
+        `WRITE_IR_REGFILE: begin
+            if (counter==p2) begin
+                state_next = `IDLE;
+            end else begin
+                state_next = `READ_CASH;
             end
-            default: state_next = state;
         end
-    end else begin
-        state_next = state;
+        default: state_next = state;
     end
 end
 
 // FSM: state output
-always @(init or en or state) begin
-    if (init) begin
-        case (state) begin
-            `IDLE: begin
-                p0_next = `DATA_WIDTH'h00;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `INIT_IR_LINES;
-                counter_set_data = `DATA_WIDTH'h00;
-                counter_set = 1'b1;
-                counter_trigger = 1'b0;
-                o_addr_bus_next = `DATA_WIDTH'h00;
-                o_cash_ren = 1'b0;
-                o_ir_regfile_ren = 1'b0;
-                o_ir_regfile_wen = 1'b0;
-            end
-            `READ_CASH: begin
-                p0_next = p0;
-                p1_next = p1;
-                p2_next = p2;
-                counter_set_data = `DATA_WIDTH'h00;
-                counter_set = 1'b0;
-                counter_trigger = 1'b0;
-                o_addr_bus_next = `DATA_WIDTH'h00;
-                o_cash_ren = 1'b0;
-                o_ir_regfile_ren = 1'b0;
-                o_ir_regfile_wen = 1'b0;
-            end
-            `WRITE_IR_REGFILE: begin
-                p0_next = p0;
-                p1_next = p1;
-                p2_next = p2;
-                counter_set_data = `DATA_WIDTH'h00;
-                counter_set = 1'b0;
-                counter_trigger = 1'b1;
-                o_addr_bus_next = addr_bus+`DATA_WIDTH'h01;
-                o_cash_ren = 1'b0;
-                o_ir_regfile_ren = 1'b0;
-                o_ir_regfile_wen = 1'b1;
-                if (counter==`INIT_IR_LINES) begin
-                    counter_next = `DATA_WIDTH'h00;
-                end else begin
-                    counter_next = counter+`DATA_WIDTH'h01;
-                end
-            end
-            default: state_next = state;
+always @(state) begin
+    case (state) begin
+        `IDLE: begin
+            p0_next = `DATA_WIDTH'h00;
+            p1_next = `DATA_WIDTH'h00;
+            p2_next = `INIT_IR_LINES;
+            counter_set_data = `DATA_WIDTH'h00;
+            counter_set = 1'b1;
+            counter_trigger = 1'b0;
+            o_addr_bus_next = `DATA_WIDTH'h00;
+            o_cash_ren = 1'b0;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b0;
         end
-    end else if (en) begin
-        case (state) begin
-            `IDLE: state_next = `READ_CASH;
-            `READ_CASH: state_next = `WRITE_IR_REGFILE;
-            `WRITE_IR_REGFILE: begin
-                if (counter==`INIT_IR_LINES) begin
-                    state_next = `IDLE;
-                end else begin
-                    state_next = `READ_CASH;
-                end
-            end
+        `READ_P0: begin
+            p0_next = i_data;
+            p1_next = `DATA_WIDTH'h00;
+            p2_next = `DATA_WIDTH'h00;
+            counter_set_data = `DATA_WIDTH'h00;
+            counter_set = 1'b0;
+            counter_trigger = 1'b0;
+            o_addr_bus_next = `DATA_WIDTH'h00;
+            o_cash_ren = 1'b0;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b0;
         end
-    end else begin
-        default: state_next = state;
+        `READ_P1: begin
+            p0_next = p0;
+            p1_next = i_data;
+            p2_next = p2;
+            counter_set_data = `DATA_WIDTH'h00;
+            counter_set = 1'b0;
+            counter_trigger = 1'b0;
+            o_addr_bus_next = `DATA_WIDTH'h00;
+            o_cash_ren = 1'b0;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b0;
+        end
+        `READ_P2: begin
+            p0_next = p0;
+            p1_next = p1;
+            p2_next = i_data;
+            counter_set_data = i_data;
+            counter_set = 1'b1;
+            counter_trigger = 1'b0;
+            o_addr_bus_next = `DATA_WIDTH'h00;
+            o_cash_ren = 1'b0;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b0;
+        end
+        `READ_CASH: begin
+            p0_next = p0+`DATA_WIDTH'h01;
+            p1_next = p1;
+            p2_next = p2;
+            counter_set_data = `DATA_WIDTH'h00;
+            counter_set = 1'b0;
+            counter_trigger = 1'b0;
+            o_addr_bus_next = p0;
+            o_cash_ren = 1'b1;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b0;
+        end
+        `WRITE_IR_REGFILE: begin
+            p0_next = p0;
+            p1_next = p1+`DATA_WIDTH'h01;
+            p2_next = p2;
+            counter_set_data = `DATA_WIDTH'h00;
+            counter_set = 1'b0;
+            counter_trigger = 1'b1;
+            o_addr_bus_next = p1;
+            o_cash_ren = 1'b0;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b1;
+        end
+        default: begin
+            p0_next = p0;
+            p1_next = p1;
+            p2_next = p2;
+            counter_set_data = `DATA_WIDTH'h00;
+            counter_set = 1'b0;
+            counter_trigger = 1'b0;
+            o_addr_bus_next = `DATA_WIDTH'h00;
+            o_cash_ren = 1'b0;
+            o_ir_regfile_ren = 1'b0;
+            o_ir_regfile_wen = 1'b1;
+        end
     end
 end
-always @(ir or ir_exe_state) begin
-    if (ir==`LOAD) begin
-        ir_load_p0 = p0;
-        ir_load_p1 = p1;
-        ir_load_p2 = p2;
-    end
-    else begin
-    end
-    case (ir_excute_state) begin
-        `IR_FETCH: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_FETCH_P0;
-        end
-        `IR_FETCH_P0: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_FETCH_P1;
-        end
-        `IR_FETCH_P1: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_FETCH_P2;
-        end
-        `IR_FETCH_P2: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_EXECUTE;
-        end
-        `IR_EXECUTE: begin
-        // NEXT
-            if (p2==8'h00) begin
-                ir_next = data_in;
-                ir_exe_state_next = `IR_FETCH;
-            end
-                ir_next = ir;
-                ir_exe_state_next = `IR_EXECUTE;
-            else begin
-            end
-        end
-        default: 
-    end
-end
-
-// FSM: output
-        p1 <= `DATA_WIDTH'b0;
-        p2 <= `DATA_WIDTH'b0;
-        p3 <= `DATA_WIDTH'b0;
-        p1 <= p1_next;
-        p2 <= p2_next;
-        p3 <= p3_next;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `DATA_WIDTH'h00;
-                p3_next = `DATA_WIDTH'hff;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `DATA_WIDTH'h00;
-                p3_next = `DATA_WIDTH'h00;
 
 endmodule
