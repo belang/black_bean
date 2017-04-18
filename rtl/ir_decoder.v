@@ -6,47 +6,31 @@
 `include define.h
 `include ir.v
 
-`define LOAD_IR_LINES 8'hff
-
-// assembly command encode
-`define IDLE  8'b00000000
-                
 // instructor execution encode
-`define IR_FETCH        4'H0
-`define IR_FETCH_P0     4'H0
-`define IR_FETCH_P1     4'H0
-`define IR_FETCH_P2     4'H0
-`define IR_EXECUTE      4'H2
+`define RESET       3'H0
+`define INIT        3'H1
+`define READ_IR     3'H2
+`define READ_P      3'H3
+`define HOLD        3'H4
 
 
 module ir_decoder(
 input clk,
 input rst_n,
-input cash_init_load_finished,
-input [`DATA_WIDTH-1:0] data_in,
-input [`IRR_WIDTH-1:0] ir,
-output [`IR_ADDR_WIDTH-1:0] irp,
-output [`DATA_WIDTH-1:0] data_out,
-output [`CTRL_BUS-1:0] ctrl_bus
+input i_cash_init_done,
+input [`DATA_WIDTH-1:0] i_data,
+output [`IR_ADDR_WIDTH-1:0] o_irp,
+output [`DATA_WIDTH-1:0] o_data_bus,
+output [`CTRL_BUS-1:0] o_ctrl_bus
 );
 
-reg [`DATA_WIDTH-1:0] reg_data_in_l1, reg_data_in_l2;
-reg [`IRR_WIDTH-1:0] reg_ir;
-reg reg_init;
-reg reg_counter;
-reg [`DATA_WIDTH-1:0] ir, p0, p1, p2;
-reg ir_exe_state
-reg ir_exe_state_next
-
-[`DATA_WIDTH-1:0] ir_mux;
-init_signal;
-start_counter
-
 // parameter define
-decoder_state
-decoder_state_next
+reg [`DATA_WIDTH-1:0] decoder_state;
+reg [`DATA_WIDTH-1:0] decoder_state_next;
 
-// input reg
+wire load_en,load_read_p,load_busy,load_init;
+wire read_p,busy;
+wire ir_match,hold;
 
 // FSM: reg
 always @(posedge clk) begin
@@ -60,163 +44,55 @@ end
 // FSM: transfer
 always @(decoder_state ) begin
     case (decoder_state) begin
-        `RESET: if (cash_init_done) begin
-            decoder_state_next <= `INIT;
+        `RESET: if (i_cash_init_done) begin
+            decoder_state_next = `INIT;
+        end else begin
+            decoder_state_next = decoder_state;
         end
         `INIT: if (!load_busy) begin
             decoder_state_next = `READ_IR;
-        end
-        //next
-        else begin
+        end else begin
             decoder_state_next = decoder_state;
         end
-        `EXECUTION: if (finished_read) begin
-            decoder_state_next = `EXECUTION;
-        end
-        else begin
+        `READ_IR: if (read_p) begin
+            decoder_state_next = `READ_P;
+        end else if (busy) begin
+            decoder_state_next = `HOLD;
+        end else begin
             decoder_state_next = decoder_state;
         end
-        default: ;
-    end
-    if (!rst_n) begin
-        reg_ir <= `DATA_WIDTH'b0;
-    end else begin
-        reg_ir <= ir_mux;
-    end
-end
-assign ir_mux = reg_init ? ((reg_data_in_l1==reg_data_in_l2) ? 
-                  reg_data_in_l2 : `DATA_WIDTH'b0 )
-              : ir;
-
-// state
-always @(posedge clk) begin
-    if (!rst_n) begin
-        reg_init <= 1'b0;
-    end else begin
-        reg_init <= init_signal;
-    end
-end
-
-assign init_signal = !reg_init && reg_counter==`LOAD_IR_LINES;
-// FSM: state transfer
-always @(posedge clk) begin
-    if (!rst_n) begin
-        ir <= `IDLE;
-    end else begin
-        ir <= ir_next;
-    end
-end
-
-// FSM: state control logic
-always @(ir or ir_exe_state) begin
-    case (ir) begin
-        `IDLE: begin
-            if (cash_init_load_finished) begin
-                ir_next = `RESET;
-            end else begin
-                ir_next = ir;
-            end
+        `READ_P: if (!read_p) begin
+            decoder_state_next = `READ_IR;
+        end else begin
+            decoder_state_next = decoder_state;
         end
-        `RESET: begin
-            if (ir_load_finished) begin
-                ir_next = ir_load_ir_next;
-            end else begin
-                ir_next = ir;
-            end
+        `HOLD: if (!busy) begin
+            decoder_state_next = `READ_IR;
+        end else begin
+            decoder_state_next = decoder_state;
         end
-        `LOAD: begin
-            if (ir_load_finished) begin
-                ir_next = ir_load_ir_next;
-            end else begin
-                ir_next = ir;
-            end
-        end
-        default: ir_next = ir;
-    end
-end
-
-// FSM_load:
-        ir_exe_state <= ir_exe_state_next;
-always @(ir or ir_exe_state) begin
-    case (ir) begin
-        `RESET: begin
-            ir
-            if (init_finished) begin
-                ir_next = `LOAD;
-                ir_exe_state_next = `IR_EXECUTE;
-            end else begin
-                ir_next = `RESET;
-                ir_exe_state_next = ir_exe_state;
-            end
-        end
-        `LOAD: begin
-            ir_next = load_ir_state;
-            ir_exe_state_next = load_ir_exe_state;
-        end
-        default: np=next;
-    end
-end
-always @(ir or ir_exe_state) begin
-    if (ir==`LOAD) begin
-        ir_load_p0 = p0;
-        ir_load_p1 = p1;
-        ir_load_p2 = p2;
-    end
-    else begin
-    end
-    case (ir_excute_state) begin
-        `IR_FETCH: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_FETCH_P0;
-        end
-        `IR_FETCH_P0: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_FETCH_P1;
-        end
-        `IR_FETCH_P1: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_FETCH_P2;
-        end
-        `IR_FETCH_P2: begin
-            ir_next = ir;
-            ir_exe_state_next = `IR_EXECUTE;
-        end
-        `IR_EXECUTE: begin
-        // NEXT
-            if (p2==8'h00) begin
-                ir_next = data_in;
-                ir_exe_state_next = `IR_FETCH;
-            end
-                ir_next = ir;
-                ir_exe_state_next = `IR_EXECUTE;
-            else begin
-            end
-        end
-        default: 
+        default: decoder_state_next = decoder_state;
     end
 end
 
 // FSM: output
-        p1 <= `DATA_WIDTH'b0;
-        p2 <= `DATA_WIDTH'b0;
-        p3 <= `DATA_WIDTH'b0;
-        p1 <= p1_next;
-        p2 <= p2_next;
-        p3 <= p3_next;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `DATA_WIDTH'h00;
-                p3_next = `DATA_WIDTH'hff;
-                p1_next = `DATA_WIDTH'h00;
-                p2_next = `DATA_WIDTH'h00;
-                p3_next = `DATA_WIDTH'h00;
-
-always @(posedge clk) begin
-    if (!rst_n) begin
-        reg_counter <= `DATA_WIDTH'b0;
-    end else if (start_counter) begin
-        reg_counter <= reg_counter+1'b1;
+always @(decoder_state ) begin
+    case (decoder_state) begin
+        `INIT: load_init = 1'b1;
+        `READ_IR: ir_match = 1'b1;
+        `HOLD: hold = 1'b1;
+        default: begin
+            load_init = 1'b0;
+            ir_match = 1'b0;
+            hold = 1'b0;
+        end
     end
 end
 
+// ir match
+assign load_en = ir_match && (i_data == `LOAD);
+
+assign read_p = load_read_p;
+assign busy = load_busy;
 
 endmodule
