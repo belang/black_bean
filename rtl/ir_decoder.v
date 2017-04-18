@@ -51,7 +51,7 @@ decoder_state_next
 // FSM: reg
 always @(posedge clk) begin
     if (!rst_n) begin
-        decoder_state <= `IDLE;
+        decoder_state <= `RESET;
     end else begin
         decoder_state <= decoder_state_next;
     end
@@ -60,9 +60,13 @@ end
 // FSM: transfer
 always @(decoder_state ) begin
     case (decoder_state) begin
-        `IDLE: if (match_one) begin
-            decoder_state_next = `EXECUTION;
+        `RESET: if (cash_init_done) begin
+            decoder_state_next <= `INIT;
         end
+        `INIT: if (!load_busy) begin
+            decoder_state_next = `READ_IR;
+        end
+        //next
         else begin
             decoder_state_next = decoder_state;
         end

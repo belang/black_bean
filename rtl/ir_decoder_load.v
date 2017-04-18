@@ -3,8 +3,6 @@
 // author: lianghy
 // time: 2017-4-13 15:58:23
 
-`include ir.v
-
 `define IDLE                3'h0
 `define INIT                3'h1
 `define READ_P0             3'h2
@@ -18,12 +16,14 @@
 module ir_decoder_load(
 input clk,
 input rst_n,
+input i_en,
 input init,
 input  [`DATA_WIDTH-1:0] i_data,
 output [`DATA_WIDTH-1:0] o_addr_bus_next,
 output o_cash_ren,
-output o_ir_regfile_ren,
 output o_ir_regfile_wen,
+output o_busy,
+output o_read_p
 );
 
 reg [`DATA_WIDTH-1:0] state,state_next;
@@ -47,7 +47,7 @@ always @(init or state) begin
         `IDLE: begin
             if (init) begin
                 state_next = `INIT;
-            end else if (i_data==`LOAD) begin
+            end else if (i_en) begin
                 state_next = `READ_P0;
             end else begin
                 state_next = state;
@@ -75,73 +75,52 @@ always @(state) begin
         `IDLE: begin
             p0_next = `DATA_WIDTH'h00;
             p1_next = `DATA_WIDTH'h00;
-            p2_next = `INIT_IR_LINES;
-            counter_set_data = `DATA_WIDTH'h00;
-            counter_set = 1'b1;
-            counter_trigger = 1'b0;
-            o_addr_bus_next = `DATA_WIDTH'h00;
-            o_cash_ren = 1'b0;
-            o_ir_regfile_ren = 1'b0;
-            o_ir_regfile_wen = 1'b0;
-        end
-        `READ_P0: begin
-            p0_next = i_data;
-            p1_next = `DATA_WIDTH'h00;
             p2_next = `DATA_WIDTH'h00;
             counter_set_data = `DATA_WIDTH'h00;
             counter_set = 1'b0;
             counter_trigger = 1'b0;
             o_addr_bus_next = `DATA_WIDTH'h00;
             o_cash_ren = 1'b0;
-            o_ir_regfile_ren = 1'b0;
             o_ir_regfile_wen = 1'b0;
+            o_busy = 1'b0;
+            o_read_p = 1'b0;
         end
-        `READ_P1: begin
-            p0_next = p0;
-            p1_next = i_data;
-            p2_next = p2;
-            counter_set_data = `DATA_WIDTH'h00;
-            counter_set = 1'b0;
-            counter_trigger = 1'b0;
-            o_addr_bus_next = `DATA_WIDTH'h00;
-            o_cash_ren = 1'b0;
-            o_ir_regfile_ren = 1'b0;
-            o_ir_regfile_wen = 1'b0;
-        end
-        `READ_P2: begin
-            p0_next = p0;
-            p1_next = p1;
-            p2_next = i_data;
-            counter_set_data = i_data;
+        `INIT: begin
+            p0_next = `DATA_WIDTH'h00;
+            p1_next = `DATA_WIDTH'h00;
+            p2_next = `INIT_IR_LINES;
+            counter_set_data = `INIT_IR_LINES;
             counter_set = 1'b1;
             counter_trigger = 1'b0;
             o_addr_bus_next = `DATA_WIDTH'h00;
             o_cash_ren = 1'b0;
-            o_ir_regfile_ren = 1'b0;
             o_ir_regfile_wen = 1'b0;
+        end
+        `READ_P0: begin
+            o_read_p = 1'b1;
+            p0_next = i_data;
+        end
+        `READ_P1: begin
+            o_read_p = 1'b1;
+            p1_next = i_data;
+        end
+        `READ_P2: begin
+            o_read_p = 1'b1;
+            p2_next = i_data;
+            counter_set_data = i_data;
+            counter_set = 1'b1;
         end
         `READ_CASH: begin
             p0_next = p0+`DATA_WIDTH'h01;
-            p1_next = p1;
-            p2_next = p2;
-            counter_set_data = `DATA_WIDTH'h00;
-            counter_set = 1'b0;
-            counter_trigger = 1'b0;
             o_addr_bus_next = p0;
             o_cash_ren = 1'b1;
-            o_ir_regfile_ren = 1'b0;
             o_ir_regfile_wen = 1'b0;
         end
         `WRITE_IR_REGFILE: begin
-            p0_next = p0;
             p1_next = p1+`DATA_WIDTH'h01;
-            p2_next = p2;
-            counter_set_data = `DATA_WIDTH'h00;
-            counter_set = 1'b0;
             counter_trigger = 1'b1;
             o_addr_bus_next = p1;
             o_cash_ren = 1'b0;
-            o_ir_regfile_ren = 1'b0;
             o_ir_regfile_wen = 1'b1;
         end
         default: begin
@@ -153,8 +132,9 @@ always @(state) begin
             counter_trigger = 1'b0;
             o_addr_bus_next = `DATA_WIDTH'h00;
             o_cash_ren = 1'b0;
-            o_ir_regfile_ren = 1'b0;
-            o_ir_regfile_wen = 1'b1;
+            o_ir_regfile_wen = 1'b0;
+            o_read_p = 1'b0;
+            o_busy = 1'b1;
         end
     end
 end
