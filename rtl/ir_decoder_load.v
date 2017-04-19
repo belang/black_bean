@@ -16,7 +16,7 @@
 module ir_decoder_load(
 input clk,
 input rst_n,
-input i_en,
+input en,
 input init,
 input  [`DATA_WIDTH-1:0] i_data,
 output [`DATA_WIDTH-1:0] o_addr_bus_next,
@@ -47,7 +47,7 @@ always @(init or state) begin
         `IDLE: begin
             if (init) begin
                 state_next = `INIT;
-            end else if (i_en) begin
+            end else if (en) begin
                 state_next = `READ_P0;
             end else begin
                 state_next = state;

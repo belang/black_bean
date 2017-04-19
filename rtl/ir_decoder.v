@@ -95,4 +95,19 @@ assign load_en = ir_match && (i_data == `LOAD);
 assign read_p = load_read_p;
 assign busy = load_busy;
 
+o_ctrl_bus = {};
+
+ir_decoder_load ir_decoder_load_0(
+    .clk                (clk                     ),
+    .rst_n              (rst_n                   ),
+    .en                 (load_en                 ),
+    .init               (load_init               ),
+    .i_data             (load_i_data             ),
+    .o_addr_bus_next    (load_o_addr_bus_next    ),
+    .o_cash_ren         (load_o_cash_ren         ),
+    .o_ir_regfile_wen   (load_o_ir_regfile_wen   ),
+    .o_busy             (load_o_busy             ),
+    .o_read_p           (load_o_read_p           ));
+
+
 endmodule
