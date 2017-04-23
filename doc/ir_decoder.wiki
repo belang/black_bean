@@ -13,10 +13,19 @@
 
 每个子状态都有独立的状态控制器。
 
-= 初始化 =
+= 初始化指令 =
 
+动作：mem -> data -> reg
 
-【读取数据到cash中，完成后，向控制器发送预备完成信号。此信号只在复位后高一次。】
+// 每拍读一行。读mem需要多行。
+L1: mem_read_mem, addr
+    if mem_data_ready
+      mem_read_data, data_reg_write addr
+      jump L1
+// 
+L1: data_read addr, ir_write addr
+
+【读取数据到mem中，完成后，向控制器发送预备完成信号。此信号只在复位后高一次。】
 
 - 当预备完成时，加载指令到寄令
 
@@ -24,9 +33,9 @@
 
 | ctrl     | addr | data_bus | inner     |
 |----------|------|----------|-----------|
-| cash ren | a1   |          |           |
+| mem ren | a1   |          |           |
 | ir wen   | a2   | d1       | counter=1 |
-| cash ren | a3   |          |           |
+| mem ren | a3   |          |           |
 | ir wen   | a4   | d2       | counter=2 |
 |          |      |          |           |
  
@@ -37,7 +46,7 @@
 |-------|----|-------------------------------------|------------|
 | 取指  |    | irp=next                            | 取参0      |
 | 取参0 | ir | irp=next,                           | 取参1      |
-| 取参1 | p0 | irp=next, addr=p0, cash_ren=1       | 取参2      |
+| 取参1 | p0 | irp=next, addr=p0, mem_ren=1       | 取参2      |
 | 取参2 | p1 | irp=next, addr=p1, regfile_ir_wen=1 | 执行       |
 | 执行  | p2 | irp=p2?next:irp, 循环加载           | 执行、取指 |
 

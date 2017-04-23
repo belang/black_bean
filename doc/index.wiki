@@ -19,6 +19,7 @@ print(y)
 
 = 设计 =
 [[structure|架构]]
+[[controller|控制器]]
 [[instructor|指令集]]
 [[ir_decoder|指令译码器]]
 [[ir_address_compute|指令地址运算]]
