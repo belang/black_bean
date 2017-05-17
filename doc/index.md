@@ -11,6 +11,7 @@ TODO:
 
 = 设计 =
 [[introduction|简介]]
+[工作状态](work_station)
 [[structure|架构]]
 [[controller|控制器]]
 [[instructor|指令集]]
