@@ -14,6 +14,7 @@
 `define DEVICE_COMPUTING            8'h05
 `define DEVICE_OUT_DEVICE           8'h06
 `define DEVICE_CONTROLLER           8'h07
+`define DEVICE_DATA_CASH            8'h08
 
 // OUT_DEVICE
 `define PORT_MEM_IR             8'h01
@@ -34,9 +35,11 @@
 `define PORT_COMPARE_RESULT 8'h0b 
 
 // CONTROLLER
-`define PORT_STOP           8'h00 
 `define PORT_JUMP_LARGER    8'h01 
 `define PORT_JUMP_SMALLER   8'h02 
 `define PORT_JUMP_EQUAL     8'h03 
+`define PORT_JUMP_UNEQUAL   8'h03 
 `define PORT_JUMP_DIRECT    8'h04 
+`define PORT_JUMP_ADDR      8'h04 
 `define PORT_WAIT           8'h05 
+`define PORT_STOP           8'h00 

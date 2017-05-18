@@ -15,14 +15,16 @@
 module control(
 clk,
 rst_n,
-ir,
+i_device,
+i_address,
 i_data,
-o_ir_en,
+o_next_ir_en,
+o_ir_reg_en,
 o_irp
 );
 input clk, rst_n;
 input  [`DATA_WIDTH-1:0] ir, i_data;
-output o_ir_en;
+output o_ir_reg_en;
 output [`DATA_WIDTH-1:0] o_irp;
 
 reg [3:0] reg_core_state;
@@ -32,16 +34,18 @@ reg [1:0] ir_reg_en;
 wire device_en;
 
 // device en
-assign device_en = ir[7:4]==`DEVICE_CONTROLLER;
+assign device_en = i_device==`DEVICE_CONTROLLER;
 
 // port en
-assign i_port = device_en ? ir[3:0]:4'h0;
+assign i_port = device_en ? i_address:`DATA_WIDTH'h0;
 assign o_data = o_data_adder | o_data_compare;
 
 assign larger_en =  i_port == `PORT_JUMP_LARGER ;
 assign smaller_en = i_port == `PORT_JUMP_SMALLER;
-assign equal_en =   i_port == `PORT_JUMP_EQUAL ;
+assign equal_en =   i_port == `PORT_JUMP_EQUAL  ;
+assign unequal_en = i_port == `PORT_JUMP_UNEQUAL;
 assign direct_en =  i_port == `PORT_JUMP_DIRECT ;
+assign address_en = i_port == `PORT_JUMP_ADDR   ;
 assign wait_en =    i_port == `PORT_WAIT        ;
 assign stop_en =    i_port == `PORT_STOP        ;
 
@@ -96,5 +100,5 @@ always @(reg_core_state) begin
     endcase
 end
 
-assign o_ir_en = ir_reg_en;
+assign o_ir_reg_en = ir_reg_en;
 endmodule

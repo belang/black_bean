@@ -40,9 +40,6 @@ regfile_ir regfile_ir_0(
 );
 endmodule
 
-`DEVICE_
-`DEVICE_OUT_DEVICE
-`
 
 module regfile_ir(
 input clk,
@@ -108,4 +105,30 @@ end
 assign data_out = |readed_data;
 
 
+endmodule
+
+module regfile_init_ir (
+clk,
+rst_n,
+data_in,
+address,
+mode,
+data_out
+);
+input clk;
+input rst_n;
+input [`IRR_WIDTH-1:0] data_in;
+input [`IR_ADDR_WIDTH-1:0] address;
+input mode;
+output [`IRR_WIDTH-1:0] data_out;
+
+reg [`IRR_WIDTH-1:0] reg_ir[`IRR_WIDTH-1:0];
+
+always @(clk) begin
+    if (!rst_n) begin
+        reg_ir[000] <= `DEVICE_DATA_CASH;
+        reg_ir[000] <= `DEVICE_DATA_CASH;
+    end
+end
+    
 endmodule
