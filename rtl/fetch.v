@@ -5,13 +5,19 @@
 
 `include "define.v"
 
+`define LIDLE            4'h0
+`define LSOURCE_DEVICE   4'h0
+`define LSOURCE_ADDRESS  4'h0
+`define LTARGET_DEVICE   4'h0
+`define LTARGET_ADDRESS  4'h0
+
 module fetch(
     clk,
     rst_n,
-    .ir (ir),
-    .o_target_device_flag,
-    .o_device,
-    .o_address
+    ir,
+    o_target_device_flag,
+    o_device,
+    o_address
 );
 input clk, rst_n;
 input  [`DATA_WIDTH-1:0] ir;
@@ -19,9 +25,10 @@ output o_target_device_flag;
 output [`DATA_WIDTH-1:0] o_device, o_address;
 
 reg [`DATA_WIDTH-1:0] reg_device;
-reg state;
+reg [3:0] state;
 
-reg nex_state;
+reg [3:0] next_state;
+reg o_target_device_flag;
 // state-- 0:fetch device ID
 always @(posedge clk) begin
     if (!rst_n) begin

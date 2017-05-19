@@ -31,14 +31,23 @@ reg [3:0] reg_core_state;
 
 // wire
 reg [1:0] ir_reg_en;
+reg [3:0] next_core_state;
 wire device_en;
+wire [`DATA_WIDTH-1:0] i_port;
+wire larger_en;
+wire smaller_en;
+wire equal_en;
+wire unequal_en;
+wire direct_en;
+wire address_en;
+wire wait_en;
+wire stop_en;
 
 // device en
 assign device_en = i_device==`DEVICE_CONTROLLER;
 
 // port en
 assign i_port = device_en ? i_address:`DATA_WIDTH'h0;
-assign o_data = o_data_adder | o_data_compare;
 
 assign larger_en =  i_port == `PORT_JUMP_LARGER ;
 assign smaller_en = i_port == `PORT_JUMP_SMALLER;

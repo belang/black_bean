@@ -14,5 +14,7 @@ module data_regfile(
     o_data
 );
 input clk, rst_n;
+input  [`DATA_WIDTH-1:0] i_device, i_address, i_data;
+output [`DATA_WIDTH-1:0] o_data;
 endmodule
 

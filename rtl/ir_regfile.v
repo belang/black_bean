@@ -45,8 +45,9 @@ regfile_ir regfile_ir_0(
 .data_in (data_in),
 .address (address),
 .mode (mode),
-.data_out (data_out),
+.data_out (data_out)
 );
+
 endmodule
 
 
