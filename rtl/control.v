@@ -13,19 +13,19 @@
 `define LIR_WORK    2'b10
 
 module control(
-clk,
-rst_n,
-i_device,
-i_address,
-i_data,
-o_next_ir_en,
-o_ir_reg_en,
-o_irp
+    clk,
+    rst_n,
+    i_device,
+    i_address,
+    o_ir_regfile_en,
+    o_ir_regfile_selection,
+    o_ir_read_or_write_en,
+    o_ir_pointer
 );
 input clk, rst_n;
-input  [`DATA_WIDTH-1:0] ir, i_data;
-output o_ir_reg_en;
-output [`DATA_WIDTH-1:0] o_irp;
+input  [`DATA_WIDTH-1:0] i_device, i_address;
+output o_ir_regfile_en, o_ir_regfile_selection, o_ir_read_or_write_en;
+output [`DATA_WIDTH-1:0] o_ir_pointer;
 
 reg [3:0] reg_core_state;
 
@@ -50,20 +50,6 @@ assign wait_en =    i_port == `PORT_WAIT        ;
 assign stop_en =    i_port == `PORT_STOP        ;
 
 // submodule
-adder adder_0 (
-.clk (clk),
-.rst_n (rst_n),
-.i_data (i_data),
-.i_port (i_port),
-.o_data (o_data)
-);
-compare compare_0 (
-.clk (clk),
-.rst_n (rst_n),
-.i_data (i_data),
-.i_port (i_port),
-.o_data (o_data)
-);
 
 // core state
 always @(posedge clk) begin
@@ -100,5 +86,5 @@ always @(reg_core_state) begin
     endcase
 end
 
-assign o_ir_reg_en = ir_reg_en;
+assign o_ir_regfile_en = ir_reg_en;
 endmodule

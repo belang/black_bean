@@ -6,39 +6,74 @@
 `include "define.v"
 
 module fetch(
-clk,
-rst_n,
-i_next_ir_en,
-i_data,
-o_device,
-o_port
+    clk,
+    rst_n,
+    .ir (ir),
+    .o_target_device_flag,
+    .o_device,
+    .o_address
 );
 input clk, rst_n;
-input i_next_ir_en;
-input  [`DATA_WIDTH-1:0] i_data;
-output [`DATA_WIDTH-1:0] o_device, o_port;
+input  [`DATA_WIDTH-1:0] ir;
+output o_target_device_flag;
+output [`DATA_WIDTH-1:0] o_device, o_address;
 
 reg [`DATA_WIDTH-1:0] reg_device;
 reg state;
 
+reg nex_state;
 // state-- 0:fetch device ID
 always @(posedge clk) begin
     if (!rst_n) begin
         reg_device <= `DATA_WIDTH'h0;
     end else begin
-        reg_device <= state ? reg_device : i_data;
+        reg_device <= state ? reg_device : ir;
     end
 end
 
 always @(posedge clk) begin
     if (!rst_n) begin
-        state <= 1'b0;
+        state <= `LIDLE;
     end else begin
-        state <= i_next_ir_en ? !state : state;
+        state <= next_state;
     end
 end
 
+always @(*) begin
+    case (state)
+        `LIDLE: begin
+            next_state = `LSOURCE_DEVICE;
+        end
+        `LSOURCE_DEVICE: begin
+            next_state = `LSOURCE_ADDRESS;
+        end
+        `LSOURCE_ADDRESS: begin
+            next_state = `LTARGET_DEVICE;
+        end
+        `LTARGET_DEVICE: begin
+            next_state = `LTARGET_ADDRESS;
+        end
+        `LTARGET_ADDRESS: begin
+            next_state = `LIDLE;
+        end
+        default: begin
+            next_state = `LIDLE;
+        end
+    endcase
+end
+
+always @(*) begin
+    case (state)
+        `LTARGET_DEVICE: begin
+            o_target_device_flag = 1'b1;
+        end
+        default: begin
+            o_target_device_flag = 1'b0;
+        end
+    endcase
+end
+
 assign o_device = reg_device;
-assign o_port = i_data;
+assign o_address = ir;
 
 endmodule

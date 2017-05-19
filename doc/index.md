@@ -13,6 +13,7 @@ TODO:
 [[introduction|简介]]
 [工作状态](work_station)
 [[structure|架构]]
+[机器指令](machine_instructor)
 [[controller|控制器]]
 [[instructor|指令集]]
 [[ir_regfile|指令寄存器]]
