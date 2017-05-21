@@ -16,13 +16,14 @@ module ir_regfile(
     i_regfile_en,
     i_regfile_selection,
     i_read_or_write_en,
+    i_device,
     i_address,
     //i_data,
     o_data
 );
 input clk, rst_n;
 input i_regfile_en, i_regfile_selection, i_read_or_write_en;
-input  [`DATA_WIDTH-1:0] i_address;
+input  [`DATA_WIDTH-1:0] i_device, i_address;
 output [`DATA_WIDTH-1:0] o_data;
 
 reg state;

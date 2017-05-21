@@ -30,7 +30,8 @@ output [`DATA_WIDTH-1:0] o_ir_pointer;
 reg [3:0] reg_core_state;
 
 // wire
-reg [1:0] ir_reg_en;
+reg o_ir_regfile_selection;
+reg o_ir_regfile_en;
 reg [3:0] next_core_state;
 wire device_en;
 wire [`DATA_WIDTH-1:0] i_port;
@@ -84,16 +85,15 @@ end
 always @(reg_core_state) begin
     case (reg_core_state)
         `LRST: begin
-            ir_reg_en = `LIR_RST;
+            o_ir_regfile_selection = `LIR_RST;
         end
         `LWORK: begin
-            ir_reg_en = `LIR_WORK;
+            o_ir_regfile_selection = `LIR_WORK;
         end
         default: begin
-            ir_reg_en = `LIR_IDLE;
+            o_ir_regfile_selection = `LIR_IDLE;
         end
     endcase
 end
 
-assign o_ir_regfile_en = ir_reg_en;
 endmodule

@@ -14,13 +14,15 @@
 module fetch(
     clk,
     rst_n,
-    ir,
+    i_ir_regfile_en,
+    i_ir,
     o_target_device_flag,
     o_device,
     o_address
 );
 input clk, rst_n;
-input  [`DATA_WIDTH-1:0] ir;
+input  i_ir_regfile_en;
+input  [`DATA_WIDTH-1:0] i_ir;
 output o_target_device_flag;
 output [`DATA_WIDTH-1:0] o_device, o_address;
 
@@ -34,7 +36,7 @@ always @(posedge clk) begin
     if (!rst_n) begin
         reg_device <= `DATA_WIDTH'h0;
     end else begin
-        reg_device <= state ? reg_device : ir;
+        reg_device <= state ? reg_device : i_ir;
     end
 end
 
@@ -81,6 +83,6 @@ always @(*) begin
 end
 
 assign o_device = reg_device;
-assign o_address = ir;
+assign o_address = i_ir;
 
 endmodule
