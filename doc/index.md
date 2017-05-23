@@ -11,9 +11,9 @@ TODO:
 
 = 设计 =
 [[introduction|简介]]
+[机器指令](machine_instructor)
 [工作状态](work_station)
 [[structure|架构]]
-[机器指令](machine_instructor)
 [设计笔记](design_tip)
 [[controller|控制器]]
 [[instructor|指令集]]
