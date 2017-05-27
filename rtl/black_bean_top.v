@@ -16,6 +16,7 @@ ir_regifle ir_regifle_0(
     .rst_n (rst_n),
     .i_ir (ir),
     .i_data (data_bus),
+    .o_ir_addr_next (ir_addr_next),
     .o_data (ir)
 );
 
@@ -35,12 +36,21 @@ data_regfile data_regfile_0(
     .o_data (regfile_data)
 );
 
-compute compute_0(
+jump jump_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_ir_addr_next (ir_addr_next),
+    .i_ir (ir),
+    .i_data (data_bus),
+    .o_data (jump_data)
+);
+
+computer computer_0(
     .clk (clk),
     .rst_n (rst_n),
     .i_ir (ir),
     .i_data (data_bus),
-    .o_data (regfile_data)
+    .o_data (computer_data)
 );
 
 interface interface_0(
@@ -48,7 +58,10 @@ interface interface_0(
     .rst_n (rst_n),
     .i_ir (ir),
     .i_data (data_bus),
-    .o_data (regfile_data)
+    .o_data_valid (interface_data_valid),
+    .o_data (interface_data)
 );
 
+assign data_bus = fetch_data | regfile_data | jump_data | compare_data |
+    interface_data ;
 endmodule

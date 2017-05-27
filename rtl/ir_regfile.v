@@ -13,12 +13,9 @@
 module ir_regfile(
     clk,
     rst_n,
-    i_regfile_en,
-    i_regfile_selection,
-    i_read_or_write_en,
-    i_device,
-    i_address,
-    //i_data,
+    i_ir,
+    i_data,
+    o_ir_addr_next,
     o_data
 );
 input clk, rst_n;
@@ -27,6 +24,11 @@ input  [`DATA_WIDTH-1:0] i_device, i_address;
 output [`DATA_WIDTH-1:0] o_data;
 
 reg state;
+
+reg [`IR_ADDR_WIDTH-1:0] ir_addr;
+
+// TODO:check
+assign ir_addr_next = ir_addr + `IR_ADDR_WIDTH'h01;
 
 wire init_finished;
 
