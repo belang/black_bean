@@ -6,8 +6,8 @@
 
 import os
 
-source_type = 'wiki'
-target_type = 'md'
+source_type = 'md'
+target_type = 'rst'
 dirlist = ['.']
 for dirpath, dirnames, filenames in os.walk('.'):
     for one_file in filenames:
