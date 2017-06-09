@@ -7,7 +7,7 @@ Contents:
    :maxdepth: 2
 
    introduction.rst
-   machine_instructor.rst
+   action_instructor.rst
    structure.rst
    instructor.rst
 
