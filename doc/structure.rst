@@ -1,26 +1,77 @@
-========
-硬件结构
-========
+==================
+Hardware Structure
+==================
 
 数据总线：8位
 结构图：见总体结构
 
 .. image:: image/structure.png
 
---------------
+The jump address is sent to ir_loader through the data bus, not directly.
+Because the address is valid in next clock posedge.
 
-指令寄存器
+controller
 ==========
-指令寄存器根据指令指针的地址读取下一条指令。当当前指令是操作指令寄存器时（读或写），则保持当前输出地址。
 
-跳转是向指令寄存器的指针端口写入地址实现。读写指令寄存器不改变指针，
+The ir_controller has following parts: 
+  - ir loader
+  - ir queue
+  - ir luncher
+  - ir decoder
 
-实体指令寄存器有：
-- 初始化 —— 初始化指令
-- 工作 —— 执行程序
+1. The excusing instruction is not stored in the module.
+2. The input data from data bus is stored in the module trigger by the matching
+   instruction.
 
-将工作指令寄存器按地址进行划分，可以存储不能功能的指令。
-这是操作系统的功能。
+ir_queue
+--------
+
+IR queue stores one instruction block which is 8 lines. 
+
+Structure
+~~~~~~~~~
+
+IR queue uses regfile style to store instruction. One reason is the instruction
+maybe reused, when in a circle, if the queue is large enough to store the whole
+circle block. Another reason is low power(may need to test).
+
+Fuction
+~~~~~~~
+
+1. Load instruction. From the IR cash loader get the instruction one by one.
+   For efficiency, it may get 4 instruction once.
+
+2. Export instruction. Export instruction to excuse in order.
+
+state
+~~~~~
+flow chart::
+
+    prefetch
+
+    reset
+    |
+    LOAD_IR -> store block address as cur_ir_block_addr
+    |
+    UPLOAD_IR -> en_export     <----------------------------------------------+
+    |                                                                         |
+    ?get one block                                                            |
+    |-> en_export                                                             |
+    |                                                                         |
+    PRELOAD_SUBSEQUENT_BLOCK(give out an IR and go to next state)             |
+    |                                                                         |
+    ?the last IR of current excuting block is a transfer IR  --------+        |
+    |                                                                |        |
+    PRELAOD_TRANSFER_BLOCK(give out an IR and go to next state)      |        |
+    |                                                                |        |
+    NEXT_BLOCK       <-----------------------------------------------+        |
+    |                                                                         |
+    |-> if the excute queue is finished, the next block is subsequent block,  |
+    |-> else if current IR is jump IR, the next is transfer one.              |
+    |                                                                         |
+    ?target IR block is loaded                                                |
+    |                                                                         |
+    |-------------------------------------------------------------------------|
 
 
 取指器
