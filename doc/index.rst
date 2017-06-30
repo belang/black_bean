@@ -12,5 +12,4 @@ Contents:
    instructor.rst
 
 
-next: introduction
-next: IR regfile flow.
+next: cash loader.

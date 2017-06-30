@@ -23,10 +23,24 @@ The ir_controller has following parts:
 2. The input data from data bus is stored in the module trigger by the matching
    instruction.
 
-ir_queue
---------
 
-IR queue stores one instruction block which is 8 lines. 
+
+Modules
+-------
+
+- Decoder: Decode the excuting ir for controller.
+- Cash Loader: Load data from cash or memory to ir queue.
+- Queue: Store one instruction block which is 8 lines. 
+- Launcher: Excute the ir SET_DATA.
+
+Cash Loader
+-----------
+
+According to the operation frequency, cash loader is divided into two parts:
+cash lower frequency and core high frequency.
+
+queue
+-----
 
 Structure
 ~~~~~~~~~
@@ -39,13 +53,36 @@ Fuction
 ~~~~~~~
 
 1. Load instruction. From the IR cash loader get the instruction one by one.
-   For efficiency, it may get 4 instruction once.
+   For efficiency, it may get 8 instruction once.
 
-2. Export instruction. Export instruction to excuse in order.
+2. Export instruction. Export instruction to excuse in order in secquence.
+
+3. The core start up here.
 
 state
 ~~~~~
+1. Reset. Excute the instruction LOAD_IR_BLOCK.
+   
+   - Set the queue 0 to LOAD_IR_BLOCK
+   - Set the *queue_export_pointer* to queue 0
+   - Set the ir_controller reg_i_data to 0(The IR block address.)
+
+2. Upload ir from loader. Condition: loader has loaded the data block.
+   When *loader_data_ready* is 1, upload ir to queue.
+   set the queue pointer
+   *queue_export_pointer* to 9'h1, which keeps output data stable.
+
+   TODO: should_load = (ir==jump)&&(jump_addr!=cur_block_addr);
+   en_load = should_load && (jump_addr_block_data_ready);
+   
+3. Export instruction. When *queue_export_en* is 1, *queue_export_pointer* will 
+   If current instruction is LOAD_IR_BLOCK, next clock *queue_export_pointer*
+   will jump to line 1, and export EMPTY instruction. At this time,
+   *queue_export_pointer* will keep stop until block data is uploaded.
+
+
 flow chart::
+
 
     prefetch
 

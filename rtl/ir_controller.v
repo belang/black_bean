@@ -25,19 +25,26 @@ output [`IR_WIDTH-1:0] o_ir;
 output [`DATA_WIDTH-1:0] o_cash_data;
 
 // 8bits X 8rows
+reg [`IR_WIDTH-1:0] reg_ir_queue[7:0], reg_ir_sequence[7:0], reg_ir_transfer[7:0];
 reg [`IR_WIDTH-1:0] reg_ir_queue[7:0], reg_o_data;
+reg [8:0] reg_queue_export_pointer;
+reg [`DATA_WIDTH-1:0] reg_i_data;
 
-reg reg_last_ir_is_set;
+reg reg_last_ir_is_set, reg_queue_pointer_en;
 
 reg [2:0] state;
 
 //wire
 reg [2:0] next_state;
+wire [`IR_WIDTH-1:0] next_ir_queue[7:0], ir_loader[7:0];
 wire en_load, data_ready, en_sequence, en_transfer;
 wire [`IR_WIDTH-1:0] ir_block[7:0];
-wire [`IR_WIDTH-1:0] ex_ir, queue_out_ir;
+wire [`IR_WIDTH-1:0] ex_ir;
 wire f_ir_is_set, next_last_ir_is_set;
 wire ['DATA_WIDTH-1:0] next_o_data;
+wire [8:0] next_queue_export_pointer;
+reg [`IR_WIDTH-1:0] queue_out_ir;
+wire load_ir_block_en, set_data, ir_hit;
 
 // cash loader
 always @(posedge clk) begin
@@ -105,21 +112,81 @@ always @(*) begin
     endcase
 end
 
-// ir queue
+// ** ir decoder *****
+load_ir_block_en = i_ir == `LOAD_IR_BLCOK;
+set_data         = i_ir == `SET_DATA;
+ir_hit = load_ir_block_en;
+
+// ** data bus input data *****
+always @(posedge clk) begin
+    if (!rst_n) begin
+        reg_i_data <= `DATA_WIDTH'h0;
+    end else begin
+        reg_i_data <= ir_hit ? i_data : reg_i_data;
+    end
+end
+
+// ** cash loader *****
+
+
+// ** ir queue *****
 // signals: loader_data_ready,
 
 always @(posedge clk) begin
     if (!rst_n) begin
-        reg_ir_queue[7:1] <= 0;
         reg_ir_queue[0] <= `LOAD_IR_BLCOK;
         reg_i_data <= `DATA_WIDTH'h0;
+        reg_queue_export_pointer <= 9'b000000010;
     end else begin
         reg_ir_queue <= next_ir_queue;
         reg_i_data <= i_data;
+        reg_queue_export_pointer <= next_queue_export_pointer;
+        reg_queue_pointer_en <= !load_ir_block_en && (loader_data_ready ||
+            reg_queue_pointer_en);
     end
 end
 
-assign next_ir_queue = loader_data_ready ? ir_loader : reg_ir_queue;
+// load ir block
+assign next_ir_queue = loader_data_ready ? ir_block : reg_ir_queue;
+// ir pointer controller
+assign next_queue_export_pointer = load_ir_block_en ? 9'h001 :
+    reg_queue_pointer_en ? reg_queue_export_pointer<<1 : reg_queue_export_pointer;
+
+// select export ir
+always @(reg_queue_export_pointer) begin
+    case (reg_queue_export_pointer)
+        9'b000000001: begin
+            queue_out_ir = `IR_WIDTH'h0;
+        end
+        9'b000000010: begin
+            queue_out_ir = reg_ir_queue[0];
+        end
+        9'b000000100: begin
+            queue_out_ir = reg_ir_queue[1];
+        end
+        9'b000001000: begin
+            queue_out_ir = reg_ir_queue[2];
+        end
+        9'b000010000: begin
+            queue_out_ir = reg_ir_queue[3];
+        end
+        9'b000100000: begin
+            queue_out_ir = reg_ir_queue[4];
+        end
+        9'b001000000: begin
+            queue_out_ir = reg_ir_queue[5];
+        end
+        9'b010000000: begin
+            queue_out_ir = reg_ir_queue[6];
+        end
+        9'b100000000: begin
+            queue_out_ir = reg_ir_queue[7];
+        end
+        default: begin
+            queue_out_ir = `IR_WIDTH'h0;
+        end
+    endcase
+end
 
 // ir_laucher : set_data
 
