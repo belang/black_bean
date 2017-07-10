@@ -16,21 +16,22 @@ module ir_controller(
     i_data,
     i_cash_data,
     o_ir,
+    o_data,
     o_cash_data
 );
 input clk, rst_n;
 input [`IR_WIDTH-1:0] i_ir;
 input [`DATA_WIDTH-1:0] i_data, i_cash_data;
 output [`IR_WIDTH-1:0] o_ir;
-output [`DATA_WIDTH-1:0] o_cash_data;
+output [`DATA_WIDTH-1:0] o_data,o_cash_data;
 
 // 8bits X 8rows
-reg [`IR_WIDTH-1:0] reg_ir_queue[7:0], reg_ir_sequence[7:0], reg_ir_transfer[7:0];
-reg [`IR_WIDTH-1:0] reg_ir_queue[7:0], reg_o_data;
+reg [`IR_WIDTH-1:0] reg_ir_queue[7:0];
 reg [8:0] reg_queue_export_pointer;
-reg [`DATA_WIDTH-1:0] reg_i_data;
-
-reg reg_last_ir_is_set, reg_queue_pointer_en;
+reg [`DATA_WIDTH-1:0] reg_i_data, reg_o_data;
+reg reg_last_ir_is_set, reg_queue_pointer_en,
+    reg_fifo_write_pointer, reg_fifo_read_pointer,
+    next_fifo_write_location, next_fifo_read_location;
 
 reg [2:0] state;
 
@@ -45,16 +46,56 @@ wire ['DATA_WIDTH-1:0] next_o_data;
 wire [8:0] next_queue_export_pointer;
 reg [`IR_WIDTH-1:0] queue_out_ir;
 wire load_ir_block_en, set_data, ir_hit;
+reg next_fifo_write_pointer, next_fifo_read_pointer;
 
 // cash loader
+// cash loader: FIFO
+// cash loader: FIFO -> command
 always @(posedge clk) begin
     if (!rst_n) begin
-        reg_ir_queue <= `IR_WIDTH'h0;
+        reg_fifo_write_pointer <= 1'b0;
+        reg_fifo_read_pointer <= 1'b0;
     end else begin
-        reg_ir_queue <= i_cash_data;
+        reg_fifo_write_pointer <= next_fifo_write_pointer;
+        reg_fifo_read_pointer <= next_fifo_read_pointer;
     end
 end
 
+assign next_fifo_write_pointer = 
+    (wen && (next_fifo_write_location!=reg_fifo_read_pointer)) ?
+    next_fifo_write_location : reg_fifo_write_pointer;
+
+always @(posedge clk) begin
+    case (reg_fifo_write_pointer)
+        0: begin
+            next_fifo_write_location = 1;
+        end
+        1: begin
+            next_fifo_write_location = 0;
+        end
+        default: begin
+            next_fifo_write_location = 0;
+        end
+    endcase
+end
+
+always @(posedge clk) begin
+    case (reg_fifo_read_pointer)
+        0: begin
+            next_fifo_read_location = 1;
+        end
+        1: begin
+            next_fifo_read_location = 0;
+        end
+        default: begin
+            next_fifo_read_location = 0;
+        end
+    endcase
+end
+
+//assign next_fifo_read_pointer = 
+//    (reg_fifo_write_pointer != reg_fifo_read_pointer) ?
+ //   next_fifo_read_location : reg_fifo_read_pointer;
 // state machine
 always @(posedge clk) begin
     if (!rst_n) begin
@@ -192,14 +233,14 @@ end
 
 assign ex_ir = (reg_last_ir_is_set || f_ir_is_set) ? IR_WIDTH'h0 : queue_out_ir;
 assign f_ir_is_set = queue_out_ir == `ACTION_SET_DATA;
-assign o_data_bus = reg_out_data;
+assign o_data = reg_o_data;
 assign next_last_ir_is_set = !reg_last_ir_is_set && f_ir_is_set;
 assign next_o_data = reg_last_ir_is_set ? queue_out_ir : DATA_WIDTH'h0;
 
 always @(posedge clk) begin
     if (!rst_n) begin
         reg_last_ir_is_set <= 1'b0;
-        reg_out_data <= `IR_WIDTH'h0;
+        reg_o_data <= `IR_WIDTH'h0;
     end else begin
         reg_last_ir_is_set <= next_last_ir_is_set;
         reg_o_data <= next_o_data;
