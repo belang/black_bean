@@ -9,9 +9,9 @@ Contents:
    introduction.rst
    terms.rst
    architecture.rst
-   action_instructor.rst
+   action_instruction.rst
    structure.rst
-   instructor.rst
+   instruction.rst
 
 
-next: cash loader.
+next: decoder.

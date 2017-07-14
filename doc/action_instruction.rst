@@ -4,10 +4,73 @@ Action Instruction
 
 Introduction
 ============
-这里设计的指令是硬件执行的指令。它是传统意义的指令集编译之后的指令。
+The computing module do a compute by four steps: set input data, config the
+state, compute, and give out the result. Except the computing step, the other
+steps exchage datas with storages. The input data is from raw data bus, the
+config information is from instructions, and the result is sent to result data
+bus. So the instruction has at least three types: set raw data bus, config
+module, select result data.
+
+The instruction of Black Bean is seperate instruction, which means each
+instruction is only one opration command with out oprands. The default oprands
+data of most instruction is the data bus, and one excetion is `SET_DATA`, whose
+oprand is the next instruction.  
+
+Set Immediate Data
+------------------
+In the instruction, there are data. Most action instructions have no operands,
+the data to be processed is on the data bus. So how to sent the data in
+instruction queue to the data bus? There are two methods:
+
+1. Use one bit of the instruction as a instruction or data flag.
+
+2. *Set one action to indicate the next line is instruction or data.*
+
+Here chooses the second method. The data width will grow fast than the
+instruction. The data width is multiple of the instruction will be good,
+because in this case, some instruction lines will consist of a data.
 
 Design
 ======
+The instruction has three types: data control, system control and module
+config. Data control instruction controles read and write the memory, choice
+proper datas to write and send the readed data to target modules. 
+System control instruction set the system state, such as reset, empty etc.
+Module config instruction used to config the caculating modules. For example,
+some module may have two or more process, and depend some config information.
+
+==================  ========  =======  =================  ============  ============================================
+instruction         mem_addr  mem_ren  reg_mem_data_type  reg_ir_p      actions               
+==================  ========  =======  =================  ============  ============================================
+reset               0         1        => 0:ir            =>mem_addr+1                  
+immediate           irp       1        => 1:data          =>mem_addr+1  reg_ir <= empty/data  
+empty/data          irp       1        => 0:ir            =>mem_addr+1                  
+raw_bus_0           irp       1        => 0               =>mem_addr+1  en_reg_raw_data_bus_0 
+c_module*           irp       1        => 0               =>mem_addr+1  select data to the result data          
+mem_w_data          irp       1        => 0               =>mem_addr+1  en_reg_mem_w_data     
+mem_w_addr          result    0        => 2:null          =>self        =>write data to memory, reg_ir <= empty 
+mem_r_addr          result    1        => 1               =>self        =>read data, reg_ir <= empty
+transfer_addr       result    1        => 0               =>mem_addr+1  set the memory address as result data [jump]
+transfer_condition  result    1        => 0               =>mem_addr+1  select next ir address [jump]
+==================  ========  =======  =================  ============  ============================================
+
+IR List
+-------
+
+==========  ==========  ==============
+ir control  data bus    memory control
+==========  ==========  ==============
+reset       raw_bus_0   mem_w_data
+immediate   raw_bus_1   mem_w_addr
+empty                   mem_r_addr
+                        mem_r_ir
+==========  ==========  ==============
+
+Module List
+-----------
+
+NEXT:  adder
+
 
 单动作指令设计灵活，更能体现硬件信号传输过程，所以以单动作指令进行设计。
 
@@ -74,40 +137,46 @@ Design
     switch: next ir_address is the 'address' when the raltionship of 
     'condition' and 'target' matches the requirement--'relationship'.
 
-Actions
-=======
+Actions of Function
+===================
 
-Load Instruction/Data
----------------------
-
-==============  ===============================
-command         action
-==============  ===============================
-set_data        set reading address to data bus
-w_load_addr     enable load address
-==============  ===============================
-
-Save Instruction/Data
----------------------
+Load Data
+---------
 
 ==============  ===============================
 command         action
 ==============  ===============================
-set_data        set writing data to data bus
-w_save_addr     enable save data 
+immediate       set reading address to data bus
+empty
+mem_r_addr
+raw_bus_0
 ==============  ===============================
 
-Set Immediate Data
-------------------
+Save Data
+---------
 
-In the instruction, there are data. Most action instructions have no operands,
-the data to be processed is on the data bus. So how to sent the data in
-instruction queue to the data bus? There are two methods:
+==============  ===============================
+command         action
+==============  ===============================
+c_module*       set writing data to data bus
+mem_w_data
+mem_w_addr      enable save data 
+==============  ===============================
 
-1. Use one bit of the instruction as a instruction or data flag.
+JUMP
+----
 
-2. *Set one action to indicate the next line is instruction or data.*
+==================  =================================
+command             action
+==================  =================================
+000000000           read data
+raw_bus_0           to compare data a 
+000000000
+raw_bus_1           to compare data b 
+compare_result
+raw_bus_0           compare_result
+transfer_condition
+000000000           true address
+000000000           false address or continue process
+==================  =================================
 
-Here chooses the second method. The data width will grow fast than the
-instruction. The data width is multiple of the instruction will be good,
-because in this case, some instruction lines will consist of a data.
