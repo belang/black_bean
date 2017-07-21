@@ -34,15 +34,16 @@ Store the instruction to excute.
 
 Raw Bus
 -------
-Store the data to process.
+Latch the read data and then dispatch them to raw data bus and result bus.
+**All module get data from raw_bus.** 
 
 Memory Trigger
 --------------
-Select address, select and latch writing data.
+Select address, select and latch writing data for memory.
 
-Ir Caculator
+Ip Caculator
 ------------
-Caculate the ir address.
+Caculate the instruction address.
 
 Result Bus
 ----------

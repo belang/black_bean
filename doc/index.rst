@@ -10,8 +10,8 @@ Contents:
    terms.rst
    architecture.rst
    action_instruction.rst
+   implementation.rst
    structure.rst
-   instruction.rst
 
 
 next: decoder.
