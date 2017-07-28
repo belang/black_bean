@@ -6,17 +6,22 @@
 `include define.h
 
 module regfile(
-input clk,
-input rst_n,
-input [`DATA_WIDTH-1:0] data_in,
-input [`DATA_ADDR_WIDTH-1:0] address,
-input mode,
-output [`DATA_WIDTH-1:0] data_out
+    clk,
+    rst_n,
+    i_data,
+    address,
+    mode,
+    o_data
 );
+input clk;
+input rst_n;
+input [`DATA_WIDTH-1:0] i_data;
+input [`DATA_ADDR_WIDTH-1:0] address;
+input mode;
+output [`DATA_WIDTH-1:0] o_data;
 
-reg mode;
 reg [`DATA_ADDR_WIDTH-1:0] reg_address ;
-reg [`DATA_WIDTH-1:0] reg_input_data   ;
+reg [`DATA_WIDTH-1:0] reg_i_data   ;
 reg [`DATA_WIDTH-1:0] reg_output_data  ;
 
 reg [`DATA_WIDTH-1:0] reg_stored_data[2**`DATA_ADDR_WIDTH-1:0];
@@ -29,14 +34,12 @@ reg inner_current_line_pointer[2**`DATA_ADDR_WIDTH-1:0];
 // input 
 always @(posedge clk) begin
     if (!rst_n) begin
-        mode <= 1'b0;
         reg_address       <= `DATA_WIDTH'b0      ;
-        reg_input_data    <= `DATA_WIDTH'b0    ;
+        reg_i_data    <= `DATA_WIDTH'b0    ;
         //reg_output_data   <= `DATA_WIDTH'b0   ;
     end else begin
-        mode <= state_control;
         reg_address       <= address      ;
-        reg_input_data    <= input_data    ;
+        reg_i_data    <= i_data    ;
         //reg_output_data   <= readed_data_or   ;
     end
 end
@@ -46,7 +49,7 @@ integer i,j;
 always @(posedge clk) begin
     if (mode) begin
         for (i=0;i<2**`DATA_ADDR_WIDTH;i=i+1) begin
-            reg_stored_data[i] <= inner_current_line_pointer[i] ? reg_input_data:reg_stored_data[i];
+            reg_stored_data[i] <= inner_current_line_pointer[i] ? reg_i_data:reg_stored_data[i];
         end
     end 
 end
@@ -66,6 +69,6 @@ always @(*) begin
     end
 end
 
-assign data_out = |readed_data;
+assign o_data = |readed_data;
 
 endmodule

@@ -34,4 +34,14 @@ end
     tc2_r3 = 8'b00110100;
 
 always #5 clk = ~clk;
+
+regfile memory_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_data (memory_write_data),
+    .i_address (memory_rw_address),
+    .i_mode (memory_mode),
+    .o_data (memory_read_data)
+);
+
 endmodule

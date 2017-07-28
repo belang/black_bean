@@ -39,24 +39,6 @@ System control instruction set the system state, such as reset, empty etc.
 Module config instruction used to config the caculating modules. For example,
 some module may have two or more processes, and depend some config information.
 
-==================  ========  =======  =================  ============  ==============================================
-instruction         action             next read data     next ir       other action
-------------------  -----------------  -----------------  ------------  ----------------------------------------------
-instruction         mem_addr  mem_ren  reg_mem_data_type  reg_ir_p      other action
-==================  ========  =======  =================  ============  ==============================================
-reset               0         1        => 0:ir            =>mem_addr+1                  
-immediate           irp       1        => 1:operand       =>mem_addr+1  reg_ir <= empty/data  
-empty/data          irp       1        => 0:ir            =>mem_addr+1                  
-raw_bus_0           irp       1        => 0               =>mem_addr+1  en_reg_raw_data_bus_0 
-choice_module*      irp       1        => 0               =>mem_addr+1  select data to the result data          
-operand_w_data      irp       1        => 0               =>mem_addr+1  en_reg_mem_w_data     
-operand_w_addr      result    0        => 2:null          =>self        =>write data to memory, reg_ir <= empty 
-operand_r_addr      result    1        => 1               =>self        =>read data, reg_ir <= empty
-transfer_addr       result    1        => 0               =>mem_addr+1  set the memory address from result data [jump]
-transfer_condition  result    1        => 0               =>mem_addr+1  select next ir address [jump]
-choice_cache_data   
-==================  ========  =======  =================  ============  ==============================================
-
 IR List
 -------
 
@@ -75,19 +57,20 @@ empty               No action. Waiting for some signal?
                 operand bus
 ------------------------------------------------------------------------------
 raw_bus_0/1         Send current cached data to data bus 0/1.
-choice_module*      Selete module from which the result reg stores data.
+store_module*       Selete module from which the result reg stores data.
 ==================  ==========================================================
                 memory control
 ------------------------------------------------------------------------------
 operand_to_write    ??Indicate the result bus data will be writen to memory.
 operand_w_addr      Write data, address is on the result bus.
-operand_r_addr      Read operand, address is on the result bus.
+operand_r_bus0/1    Read operand to raw bus, address is on the result bus.
 ==================  ==========================================================
                 transfer control
 ------------------------------------------------------------------------------
 transfer_addr       Read instruction , address is on the result bus.
 transfer_condition  Set next ip;
-                    If source and target match, next ip is current ip plus 1,
+                    If the object value matches the condition, 
+                    next ip is current ip plus 1,
                     else next ip is current ip plus 2.
 ==================  ==========================================================
 

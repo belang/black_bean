@@ -11,7 +11,8 @@ Contents:
    architecture.rst
    action_instruction.rst
    implementation.rst
+   bean_instruction.rst
    structure.rst
 
 
-next: decoder.
+next: ip.

@@ -7,8 +7,20 @@
 `define CTRL_BUS 16
 
 // CONTROLLER
-LOAD_IR_BLCOK
-SET_DATA
+`define RESET                         8'h00
+`define CONTINUE                      8'h01
+`define EMPTY                         8'h02
+`define RAW_BUS_0                     8'h03
+`define RAW_BUS_1                     8'h04
+`define OPERAND_W_ADDR                8'h05
+`define OPERAND_R_BUS_0               8'h06
+`define OPERAND_R_BUS_1               8'h07
+`define TRANSFER_ADDR                 8'h08
+`define TRANSFER_CONDITION            8'h09
+`define STORE_RAW_BUS_0               8'h0a
+`define STORE_RAW_BUS_1               8'h0b
+// END CONTROLLER
+
 
 // device
 `define DEVICE_IR_REGFILE_READ      8'h01

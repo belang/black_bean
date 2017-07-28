@@ -1,99 +1,85 @@
 `timescale 1ns/1ps
-// file name: control.v
+// file name: controller.v
 // author: lianghy
 // time: 2017-5-11 17:20:23
 
 `include "define.v"
 
-`define LRST    4'h0
-`define LWORK   4'h1
-
-`define LIR_IDLE    2'b00
-`define LIR_RST     2'b01
-`define LIR_WORK    2'b10
-
-module control(
+module controller(
     clk,
     rst_n,
-    i_device,
-    i_address,
-    o_ir_regfile_en,
-    o_ir_regfile_selection,
-    o_ir_read_or_write_en,
-    o_ir_pointer
+    memory_read_data,
+    memory_write_data,
+    memory_address,
+    memory_write_enable,
+    memory_read_enable
 );
 input clk, rst_n;
-input  [`DATA_WIDTH-1:0] i_device, i_address;
-output o_ir_regfile_en, o_ir_regfile_selection, o_ir_read_or_write_en;
-output [`DATA_WIDTH-1:0] o_ir_pointer;
+input [`DATA_WIDTH-1:0] memory_read_data ;
+output [`DATA_WIDTH-1:0] memory_write_data ;
+output [`DATA_WIDTH-1:0] memory_address ;
+output memory_read_enable;
+output memory_write_enable;
 
-reg [3:0] reg_core_state;
+wire [`DATA_WIDTH-1:0] raw_bus_0, raw_bus_1 ;
+wire memory_address_source;
+wire hold_ip_flag;
+wire reset_ip;
+wire select_jump_address;
+wire ir_enable;
+wire raw_bus_0_wen;
+wire raw_bus_1_wen;
+wire raw_bus_0_ren;
+wire raw_bus_1_ren;
 
-// wire
-reg o_ir_regfile_selection;
-reg o_ir_regfile_en;
-reg [3:0] next_core_state;
-wire device_en;
-wire [`DATA_WIDTH-1:0] i_port;
-wire larger_en;
-wire smaller_en;
-wire equal_en;
-wire unequal_en;
-wire direct_en;
-wire address_en;
-wire wait_en;
-wire stop_en;
+address_caculator address_caculator_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_target_address (raw_bus_0),
+    .i_object (raw_bus_0),
+    .i_condition (raw_bus_1),
+    .i_reset_ip (reset_ip),
+    .i_hold_ip_flag (hold_ip_flag),
+    .i_memory_address_source (memory_address_source),
+    .i_select_jump_address (select_jump_address),
+    .o_memory_address (memory_address)
+);
 
-// device en
-assign device_en = i_device==`DEVICE_CONTROLLER;
+raw_bus raw_bus_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_raw_bus_0_en (raw_bus_0_en),
+    .i_raw_bus_1_en (raw_bus_1_en),
+    .i_data (memory_read_data),
+    .o_raw_bus_0 (raw_bus_0),
+    .o_raw_bus_1 (raw_bus_1)
+);
 
-// port en
-assign i_port = device_en ? i_address:`DATA_WIDTH'h0;
+result_bus result_bus_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_raw_bus_0 (raw_bus_0),
+    .i_raw_bus_1 (raw_bus_1),
+    .i_raw_bus_0_ren (raw_bus_0_ren),
+    .i_raw_bus_1_ren (raw_bus_1_ren),
+    .o_data (memory_write_data)
+);
 
-assign larger_en =  i_port == `PORT_JUMP_LARGER ;
-assign smaller_en = i_port == `PORT_JUMP_SMALLER;
-assign equal_en =   i_port == `PORT_JUMP_EQUAL  ;
-assign unequal_en = i_port == `PORT_JUMP_UNEQUAL;
-assign direct_en =  i_port == `PORT_JUMP_DIRECT ;
-assign address_en = i_port == `PORT_JUMP_ADDR   ;
-assign wait_en =    i_port == `PORT_WAIT        ;
-assign stop_en =    i_port == `PORT_STOP        ;
-
-// submodule
-
-// core state
-always @(posedge clk) begin
-    if (!rst_n) begin
-        reg_core_state <= `LRST;
-    end else begin
-        reg_core_state <= next_core_state;
-    end
-end
-always @(*) begin
-    case (reg_core_state)
-        `LRST: begin
-            // reset finished condition
-            if (direct_en) begin
-                next_core_state = `LWORK;
-            end
-        end
-        default: begin
-            next_core_state = reg_core_state;
-        end
-    endcase
-end
-always @(reg_core_state) begin
-    case (reg_core_state)
-        `LRST: begin
-            o_ir_regfile_selection = `LIR_RST;
-        end
-        `LWORK: begin
-            o_ir_regfile_selection = `LIR_WORK;
-        end
-        default: begin
-            o_ir_regfile_selection = `LIR_IDLE;
-        end
-    endcase
-end
+decoder decoder_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_ir (memory_read_data),
+    .o_memory_address_source (memory_address_source),
+    .o_memory_read_enable (memory_read_enable),
+    .o_memory_write_enable (memory_write_enable),
+    .o_hold_ip_flag (hold_ip_flag),
+    .o_reset_ip (reset_ip),
+    .o_select_jump_address (select_jump_address),
+    .o_ir_enable (ir_enable),
+    .o_raw_bus_0_wen (raw_bus_0_wen),
+    .o_raw_bus_1_wen (raw_bus_1_wen),
+    .o_raw_bus_0_ren (raw_bus_0_ren),
+    .o_raw_bus_1_ren (raw_bus_1_ren)
+);
 
 endmodule
