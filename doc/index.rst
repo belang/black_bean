@@ -11,8 +11,7 @@ Contents:
    architecture.rst
    action_instruction.rst
    implementation.rst
-   bean_instruction.rst
-   structure.rst
+   bean_assembly_language.rst
+   black_bean_compiler_assemble.rst
+   design_recore.rst
 
-
-next: ip.

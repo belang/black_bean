@@ -4,10 +4,12 @@ bak/
 *.swp
 *.swo
 Thumbs.db
+tmp
 *_desktop.ini
 test.wiki
 temp.wiki
-tmp/
 current_work/
 current_job.wiki
 test/
+tmp/
+__pycache__/

@@ -1,36 +1,49 @@
 
 `define PORT_WIDTH 4
 `define DATA_WIDTH 8
-`define IRR_WIDTH `DATA_WIDTH
+`define IR_WIDTH `DATA_WIDTH
 `define DATA_ADDR_WIDTH 8
 `define IR_ADDR_WIDTH `DATA_ADDR_WIDTH
 `define CTRL_BUS 16
 
-// CONTROLLER
-`define RESET                         8'h00
-`define CONTINUE                      8'h01
-`define EMPTY                         8'h02
-`define RAW_BUS_0                     8'h03
-`define RAW_BUS_1                     8'h04
-`define OPERAND_W_ADDR                8'h05
-`define OPERAND_R_BUS_0               8'h06
-`define OPERAND_R_BUS_1               8'h07
-`define TRANSFER_ADDR                 8'h08
-`define TRANSFER_CONDITION            8'h09
-`define STORE_RAW_BUS_0               8'h0a
-`define STORE_RAW_BUS_1               8'h0b
-// END CONTROLLER
+// action encode
+`define ACTION_PAUSE    2'b00
+`define ACTION_WRITE    2'b01
+`define ACTION_READ_AR  2'b10
+`define ACTION_READ_PC  2'b11
+
+// data reg encode
+`define UNIT_NULL       6'b000000
+`define UNIT_IR         6'b000000
+`define UNIT_AR         6'b000001
+`define UNIT_DR0        6'b000010
+`define UNIT_DR1        6'b000011
+`define UNIT_MR         6'b000100
+`define UNIT_PC         6'b000101
+
+// alu encode
+`define ALU_COMPARER    6'b100001
+`define ALU_JUMP_COND   6'b100010
+
+// data reg Decode
+`define DU_IR               6'b000001
+`define DU_AR               6'b000010
+`define DU_DR0              6'b000100
+`define DU_DR1              6'b001000
+`define DU_CR               6'b010000
+`define DU_PC               6'b100000
+`define DU_NULL             6'b000000
+
+// address Decode
+`define ADDR_FROM_AR        1'b0
+`define ADDR_FROM_PC        1'b1
+
+// memory action
+`define MEM_READ         2'b01
+`define MEM_WRITE        2'b10
+`define MEM_PAUSE        2'b00
 
 
-// device
-`define DEVICE_IR_REGFILE_READ      8'h01
-`define DEVICE_IR_REGFILE_WRITE     8'h02
-`define DEVICE_DATA_REGFILE_READ    8'h03
-`define DEVICE_DATA_REGFILE_WRITE   8'h04
-`define DEVICE_COMPUTING            8'h05
-`define DEVICE_OUT_DEVICE           8'h06
-`define DEVICE_CONTROLLER           8'h07
-`define DEVICE_DATA_CASH            8'h08
 
 // OUT_DEVICE
 `define PORT_MEM_IR             8'h01

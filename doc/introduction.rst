@@ -1,158 +1,58 @@
-========
-可计算性
-========
+Introduction 
+=============
 
-处理器
-======
-一个计算任务是由许多单独的计算构成。
-任务的描述由两部分构成：计算（个体）和计算的组合（关系）。
-一个能够按描述完成计算任务的机器也由两部分构成：运算器件和运算组合控制器件。
-这样的机器称为处理器，前一器件称为运算器，后者称为控制器，任务的描述称为指令。
+Computability
+=============
 
-指令也分为两种：计算和控制。各种指令的集合称为指令集。
-每种处理器结构对应一种指令集。
-根据计算能力，将指令集分为两种：图灵完备和非完备。
-一个通用处理器一定是图灵完备的（要完成各种任务）。
-计算指令是完成一个计算动作。
-在算法上，很多复杂计算可以由简单计算组合而成。
-为了减少描述任务使用指令（程序）的长度，为一些常用的计算设计了专门的计算指令
-（对应着专门的运算器）。
-而一些较为复杂的有针对性的计算（如图形，视频解码等），则设计了专门的处理器，
-称为数字信息处理器（DSP，Digital Signal Processor）。
-DSP中对复杂的计算进行性能的优化，因而在专业计算领域表现突出。
+If some problem is computable, we can resolve it by some mathematic computing
+within estimate and receptable time. A problem is computable, we can use
+computer to get the result.
+
+Computer consists of some parts: some relate with computing, and some with the
+interaction with person. Now let us focus on the computing parts.
+A simple computing model is as this: memory, processor, and interface.
+Memory usually stores the data(to process) and program(control the processor)
+seperatly.
+Processor processes the data according to the program.
+Interface exchange the data and program between memory and processor.
+
+Here, we consider that the computing and storage are separate.
+
+Processor
+=========
+
+A computing process consists of two parts: computing and computing flow.
+Computing is the single computing action such as add,
+flow is the order of the single action.
+The computing module is called arithmetic logic unit(ALU),
+the flow control module is called controller.
+The processor is controlled by the instruciton.
+All instrucitons of a processor is called instruciton set.
+
+Instruction Set
+===============
+
+Instruction is the interface between processor and person.
+The instruciton types are different according to the architecture of the
+different processors.
+
+Universal ISA
+=============
+
+The Instruction Set Architecture(ISA) detemines the processor structure.
+A program compiled to a certain IS, can excute on the same type processor.
+Across ISA, program usually need to be rewritten or changed some instrucitons,
+because the assembly languages are different.
+
+An instruction is usually consist of operation and operands.
+Different ISAs have different operations and different mounts and types of operands.
+The operations is excused by some logic circuits and the ALU.
+The operands may be flag, data or address.
 
 
-指令集
-======
-指令集是用来描述计算任务的，被称为计算机语言，是处理器的人机接口。
-早期的计算机指令是0、1组合，称为机器码，是处理器能够直接执行的指令。
-现在，对于软件人员，最低层的计算机语言一般是汇编，
-但汇编不完全是机器码，也不是完全与机器码一一对应。
-在汇编与机械码之间有个过程——编译。
-X86结构的汇编程序在经过编译的时候，有的汇编指令会被译成多条机器码。
-这些机器码是最基本的指令集，称为机器指令集。
+Bean instruciton set is designed from the view of data flow.
+Each instruciton controls some buttons which enable or close some ports to get
+or send data.
+The data flows on various buses.
 
-在处理器模型（通常是计算模型）中，一条指令是完成一个计算。
-但是一条机械指令并不是一个计算，而是一个动作，可能是多个动作构成一个计算。
-例如常见的汇编加法指令ADD R1 R2 R3（将内存R1和R2的值相加，结果存到R3），
-可以分解成一系列动作：取R1、R2的值到加法器；计算过程；将结果存储在R3中。
-如果不考虑计算过程所需要的时间，加法汇编指令至少需要两个时钟周期（称为两拍）。
 
-有的处理器直接使用汇编指令作为处理器输入指令，有的不是。
-无论哪种，在处理器中，指令都是多拍完成，通过流水级实现。
-对于精简指令集（RISC）结构处理器，指令长度固定，流水级清晰，下文以此为例。
-嵌入式处理器中较常见的一种流水级是取指、译码、执行。
-通用处理器中流水级一般是取指、译码、发射、执行和写回。
-处理器频率越高，每级流水的逻辑越短，则流水级越长。
-
-之前是从人的角度（指令）来分析处理器结构，下面从硬件动作角度来分析。
-出于稳定性考虑，硬件数字部分一般都是用时序逻辑实现。
-整个计算过程是从内存取数据，送到计算逻辑，再存到内存。
-这一过程有三个基本动作：读内存、组合逻辑、写内存。
-读内存对应着取指、发射时的取数据；
-组合逻辑对应着执行；写内存对应着写回。
-数据传输也需要一定的时间，需要确定送到哪个计算逻辑中，它对应着译码和发射。
-每个硬件动作都是一拍完成的。
-
-硬件实现
-========
-
-根据动作分解，要实现加法指令，需要一些硬件结构：
-
-    - 指令内存：存储加法指令。其位长，一般与指令位长相同。
-    - 指令地址内存：指示读取指令内存的某行。位长与指令内存地址空间对应。
-    - 译码器：将取出指令译成对应的控制码，控制相应的器件。
-    - 数据内存：存储数据，位长等于数据位长。
-    - 数据读总线：传输数据。
-      加法指令要传输两个数据，如果一拍完成，需要双倍位宽；
-      如果两拍完成，则与数据位长相同。
-    - 数据写总线：将加法器的运算结果送到内存中。
-    - 加法器：完成计算任务。
-
-有了这些基本结构，就能够实现加法任务。
-要实现顺序计算任务，需要增加指令地址运算器件（自动增加指令地址）。
-要实现逻辑控制（循环等），需要相应的逻辑控制器（计算指令地址）。
-
-电路指令集
-==========
-
-通常的计算机架构都是按照上述思路进行设计。
-如果按电路动作进行设计会有什么不同吗？
-继续将加法指令的执行按动作进行分解，这次不按流水级，而是分解成独立的动作指令：
-
-    - 读内存R1
-    - 传输数据到加法器端口A1
-    - 读内存R2
-    - 传输数据到加法器端口A2
-    - 计算
-    - 传输加法器结果到内存R3
-
-这些只是指令，与此同时，还有数据的传输。
-
-======================  ======  ======  ======  ====
-指令                    对象    值      动作    数据
-======================  ======  ======  ======  ====
-读内存                  R1      地址    读      数值
-传输数据到加法器        A1      总线    写      空
-读内存                  R2      地址    读      数值
-传输数据到加法器        A2      总线    写      空
-计算                    ADDER   空      读      结果
-传输加法器结果到内存    R3      地址    写      空
-======================  ======  ======  ======  ====
-
-每个动作指令都包含对象和要输入的数值，
-指令结束后，有些有输出，有些则没有。
-
-如果计算机的指令集是动作指令集，会有什么不同？
-
-1. 每条指令都一拍完成？不。每条指令在控制器内，都只有一拍。
-
-2. 单条指令不仅描述计算，还描述硬件动作。（考虑ADDER计算指令）
-
-3. 指令是汇编的译码。
-
-4. 更精细控制每个计算动作。理论上，效率应该更高。
-
-5. 通过编译器，可以更好实现并发性！（如何实现）
-
-tips
-====
-
-1. 读取内存与读取运算模块输出数据的操作是一致的。
-
-idear
-=====
-
-1. 每条汇编指令由多条顺序机器指令构成，标识只在第一条机器指令。
-2. 部分汇编指令顺序执行，有些汇编指令跳转，标识只在跳入点。
-
-3. 安全系统：分级管理。每级管理员都只有本级的权限。如操作系统管理员可以划分一个
-   文件夹给用户甲，甲在其中创建文件“专用”，并设置权限不可读，则操作系统管理员也
-   不能读取相应数据。在甲失效时，如忘记密码，操作系统管理员只能删除甲，数据无法
-   恢复。
-
-名词解释
-========
-
-+-------------------+---------------------------------------------------+
-| words             | meaning                                           |
-+===================+===================================================+
-| Instruction Block | The block is some continuous rows of memory.      |
-|                   | This block stores instructions which will be      |
-|                   | excused sequentially, which means the controller  |
-|                   | read the instruction one by one without jumping.. |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+
-|                   |                                                   |
-+-------------------+---------------------------------------------------+

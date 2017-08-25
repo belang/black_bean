@@ -4,85 +4,131 @@ Implementation
 
 Decoder
 =======
-There two types instructions, one is context-independent, the other is
-context-dependent.
-The first version of BlackBean is the former for simplicity.
 
-**Input : IR**
+The decoder decodes the instruction according to current state,
+decides the next state and export control signals.
 
-All nets connect to output pins have a prefix *ling_*,
-which classes these net as coming from decoder.
+The input and state decide the next state and output.
+Here let n_action and n_unit indicate the next excuting instruction.
+The insput and state decide the n_action and n_unit,
+and the next state is decided by n_action,
+and the output is decided by both state and n_action/n_unit.
 
-Signals Specification
----------------------
+State
+-----
 
-==============================  ==============================================
-output signals                  value [default value is the first value]
-==============================  ==============================================
-                memory read and write control
-------------------------------------------------------------------------------
-memory_address_source           0: ip, 1: raw bus 0
-memory_read_enable              1: read, 0: do not read
-memory_write_enable             0: do not write, 1: write
-==============================  ==============================================
-                   instruction pointer(ip) caculator
-------------------------------------------------------------------------------
-hold_ip_flag                    0: memory address +1, 1: hold, 
-reset_ip                        0: ip, 1: 00000000
-select_jump_address             0: normal, 1: cur_ip+1 or cur_ip+2
-==============================  ==============================================
-ir_enable                       1: active, 0: stop
-raw_bus_0/1_wen                 0: stop, 1: active 
-raw_bus_0/1_ren                 0: stop, 1: active 
-(module)_output_enable          0: value is no use, 1: value is valid
-==============================  ==============================================
+==========  ========  ==================================
+state       code      discription
+==========  ========  ==================================
+IDLE        5'b00000  initial state, hard reset
+PAUSE       5'b00001  do not deal with input
+READ_IR     5'b00010  the reading data is an instruction
+READ_DA     5'b00100  the reading data is a data
+WRITE       5'b01000  write data to memory
+==========  ========  ==================================
 
-Instruction Specification
--------------------------
+Instruction
+-----------
 
-======================  ==============================  =====
-instruction             signals                         value
-======================  ==============================  =====
-reset                   reset_ip                        1
-continue                DEFAULT
-empty                   memory_read_enable              0
-                        hold_ip_flag                    1
-                        ir_enable                       0
-raw_bus_0/1             raw_bus_0/1_wen                 1
-                        ir_enable                       0
-operand_w_addr          memory_address_source           1
-                        memory_write_enable             1
-                        memory_read_enable              0
-operand_r_bus0/1        memory_address_source           1
-                        hold_ip_flag                    1
-                        raw_bus_0/1_wen                 1
-transfer_addr           memory_address_source           1
-transfer_condition      select_jump_address             1
-store_module*           (module)_output_enable          1
-======================  ==============================  =====
+Action:
 
-address caculator
-=================
-Caculate memory read and write address.
+==================  ========  ============
+action              encode    decode(flag)
+==================  ========  ============
+ACTION_PAUSE        2'b00     3'b000      
+ACTION_WRITE        2'b01     3'b001      
+ACTION_READ_AR      2'b10     3'b010      
+ACTION_READ_PC      2'b11     3'b100      
+==================  ========  ============
 
-Input:
+Unit:
 
-======================  ==================  =====================
-name                    source              function
-======================  ==================  =====================
-target_address          raw_bus_0
-object                  raw_bus_0
-condition               raw_bus_1
-hold_ip_flag            decoder             control ip caculating
-memory_address_source   decoder
-select_jump_address     decoder
-======================  ==================  =====================
+==============  ==============================================================
+unit            discription
+==============  ==============================================================
+UNIT_NULL       stop
+UNIT_IR         6'b0000006'b000001
+UNIT_AR         6'b0000016'b000010
+UNIT_DR0        6'b0000106'b000100
+UNIT_DR1        6'b0000116'b001000
+UNIT_CR         6'b0001006'b010000
+UNIT_PC         6'b0001016'b100000
+UNIT_ALU        wait the finished signal from the special ALU
+==============  ==============================================================
 
-Output:
+ACTION_PAUSE:
 
-==================  ======================  =====================
-name                target                  function
-==================  ======================  =====================
-memory_address      memory : address        
-==================  ======================  =====================
+==============  =========  ============
+unit            encode     decode(flag)   
+==============  =========  ============
+UNIT_NULL       6'b000000  6'b000000
+UNIT_IR         6'b000000  6'b000001
+UNIT_AR         6'b000001  6'b000010
+UNIT_DR0        6'b000010  6'b000100
+UNIT_DR1        6'b000011  6'b001000
+UNIT_CR         6'b000100  6'b010000
+UNIT_PC         6'b000101  6'b100000
+UNIT_ALU        6'b1*****  
+==============  =========  ============
+
+Output
+------
+
+The data register is controlled by the output flags o_unit_reg,
+and the ALU modules is seleted by the output o_unit_alu.
+
+The register is controlled by an enable signal which is decoded by module decoder,
+but the ALU must decode the address by itself.
+So the ALU module has a small units address decoder.
+
+Because the read in data is ready on the next circle,
+the flag_unit is needed to delay on circle, realized by one flag register.
+If the instruction width is 16 bits,
+which means the reading instruction and data are readed in in one circle,
+the flag_unit is decoded directly from the i_unit.
+
+
+
+Data Register
+=============
+
+PC
+--
+
+Program Counter is a 8 bits counter.
+It counts the number of the program by the next instruction.
+(Another methord is by the current state, not used here.)
+
+The PC counts numbers when the instruction is:
+
+1. The action is ACTION_READ_PC and the unit is not UNIT_PC.
+
+The PC holds current value when the instruction is:
+
+1. The action is ACTION_READ_AR and the unit is not UNIT_PC.
+
+2. The action is ACTION_WRITE.
+
+3. The action is ACTION_PAUSE.
+
+The PC set the value as the input data when the instruction is:
+
+1. The action is ACTION_READ_AR/PC and the unit is UNIT_PC.
+
+In following situation,
+the processor will excute some instructions stored in other places.
+
+1. The action is ACTION_READ_AR and the unit is UNIT_IR.
+
+
+ALU
+===
+
+Comparer
+--------
+
+Compare dr_0 and dr_1 datas, result is the relationship of dr_0
+and dr_1. 
+For example, if dr_0 is 1 and dr_1 is 20, the result is large.
+The result is the ascii of >, <, =, and their combination.
 

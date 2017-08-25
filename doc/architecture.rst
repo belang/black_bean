@@ -2,49 +2,52 @@
 Architecture
 ============
 
-Basic Concept
+Introduction
+============
+
+Black bean processor is the stored program structure.
+
+A program or an algorithm consists of some computation and the organization.
+Nowadays, computation units maybe very complex and can afford some computaion task.
+So a Central Process Unit(CPU) has thress parts: inner storage, controller and
+arithmetic unit.
+The process of excuting a program is read data from memory, send them to ALU,
+and save data from ALU.
+Each sub-circuit of ALU has a certain function maybe with some configuration.
+Let assume that the sub-circuit has a fix function, so it does not need
+control information.
+The controller will control the read and write action with the write address.
+When read, it sets the memory read address, read enable, and target register or
+modules,
+when write, it sets the memory write address, write enbale, and the write data
+by selecte the right ALU.
+So, black bean instruction set architercure(BBISA) is designed by this throught.
+The black bean instruction consist of memory action, source address and target
+address.
+
+The word width of BBISA_v01 is 8bits.
+
+
+DATA Register
 =============
 
-Data Width
-----------
-The data width of Black Bean is 8bits.
+Some ALU needs two operands once, but the BB processor read one word once.
+The BBP use data register 0 and 1(DR0/1) to store the operands.
 
-Data Bus Width
---------------
-Because some computing needs two or more input, so the bus width is 16 bits or
-more.
+Some ALU has more than one function mode,
+so the BBP use config register(CR) to store the config information.
 
-Data Storage Mapping
---------------------
-The storage has two lines data_data_out pins, and each of them is connected to
-some specified pins modules. For example, data_data_out[0] is connected to adder
-input pins i_data_0, and data_data_out[1] is connected to the i_data_1.
+To read data from a direct address,
+there is a address register(AR) to store the address.
 
-Total Architecture
-==================
+.. for efficiency: AR and CR may share a register.
 
-Memory
-------
-Store both data and instruction. It is one read and one write. It's data width
-is 8bits.
+Features
+========
 
-IR Queue
---------
-Store the instruction to excute.
-
-Raw Bus
--------
-Latch the read data and then dispatch them to raw data bus and result bus.
-**All module get data from raw_bus.** 
-
-Memory Trigger
---------------
-Select address, select and latch writing data for memory.
-
-Ip Caculator
-------------
-Caculate the instruction address.
-
-Result Bus
-----------
-Select the data result from all computing modules.
+1. The processor can excute some instructions stored in other places in program.
+   That is the PC is still in the program,
+   and current instruction can read instructions from a direct address,
+   and excute them.
+   That also is the processor don't jump to another section of instructions to
+   excute them

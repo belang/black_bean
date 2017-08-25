@@ -4,148 +4,86 @@ Action Instruction
 
 Introduction
 ============
-The computing module do a compute by four steps: set input data, config the
-state, compute, and give out the result. Except the computing step, the other
-steps exchage datas with storages. The input data is from raw data bus, the
-config information is from instructions, and the result is sent to result data
-bus. So the instruction has at least three types: set raw data bus, config
-module, select result data.
 
-The instruction of Black Bean is seperate instruction, which means each
-instruction is only one opration command with out oprands. The default oprands
-data of most instruction is the data bus, and one excetion is `SET_DATA`, whose
-oprand is the next instruction.  
+Action Instruction Set(AIS) realize the arithmetic by control the data flow.
+The action instruction set is to control the data goto and outof memory.
+The ALU get data from data registers,
+the instruction address is from PC,
+and branch instruction is realize by setting the PC,
+value of which is caculated in a special ALU: jump_condition.
+To config the ALU, read data to the config register.
 
-Set Immediate Data
-------------------
-In the instruction, there are data. Most action instructions have no operands,
-the data to be processed is on the data bus. So how to sent the data in
-instruction queue to the data bus? There are two methods:
+Action Instruction Code
+=======================
 
-1. Use one bit of the instruction as a instruction or data flag.
+Action instruction consists of three parts: action, target, address.
+Action is read or write the memory,
+source is the read address or the ALU data
+target is the write address or register to store the read data.
 
-2. *Set one action to indicate the next line is instruction or data.*
+There are two types of memory address source:
+one is the next line address stored in the PC, and
+the other is a direct address stored in a register(AR).
+To support many addressing mode, caculate the address and save it to PC.
 
-Here chooses the second method. The data width will grow fast than the
-instruction. The data width is multiple of the instruction will be good,
-because in this case, some instruction lines will consist of a data.
+When write, the target is fixed and address is always in AR, and
+when read, the address is from the AR storing direct address or
+PC storing next program address.
+So to left more codes for units, the instruction is shorten to two parts:
+action and units address.
 
-Design
-======
-The instruction has three types: data control, system control and module
-config. Data control instruction controles read and write the memory, choice
-proper datas to write and send the readed data to target modules. 
-System control instruction set the system state, such as reset, empty etc.
-Module config instruction used to config the caculating modules. For example,
-some module may have two or more processes, and depend some config information.
+Action:
 
-IR List
--------
+  It is the action of read and write memory.
+  It includs fetch IR, read data and write data.
+==========  ======  =========================================================
+type        code    discription
+==========  ======  =========================================================
+action      00      PAUSE, no read and write, used for multi-cycle arithmetic
+                    and stop
+            01      WRITE, write data to memory
+            10      READ_AR, read data from AR
+            11      READ_PC, read data from PC
+==========  ======  =========================================================
 
-==================  ==========================================================
-instruction         function
-==================  ==========================================================
-                flow_control
-------------------------------------------------------------------------------
-reset               Soft reset. 
-                    It is the default command when start the controller. 
-                    In this state, read the command in memory address 0.
-immediate           ??Indicate the next instruction is a operand.
-continue            Continue to read next raw instruction.
-empty               No action. Waiting for some signal? 
-==================  ==========================================================
-                operand bus
-------------------------------------------------------------------------------
-raw_bus_0/1         Send current cached data to data bus 0/1.
-store_module*       Selete module from which the result reg stores data.
-==================  ==========================================================
-                memory control
-------------------------------------------------------------------------------
-operand_to_write    ??Indicate the result bus data will be writen to memory.
-operand_w_addr      Write data, address is on the result bus.
-operand_r_bus0/1    Read operand to raw bus, address is on the result bus.
-==================  ==========================================================
-                transfer control
-------------------------------------------------------------------------------
-transfer_addr       Read instruction , address is on the result bus.
-transfer_condition  Set next ip;
-                    If the object value matches the condition, 
-                    next ip is current ip plus 1,
-                    else next ip is current ip plus 2.
-==================  ==========================================================
+Read:
 
+==========  ======  ==================================
+type        code    discription
+==========  ======  ==================================
+action      10      READ_DA
+            11      READ_IN
+d_target    000000  IR
+            000001  AR
+            000010  DR0
+            000011  DR1
+            000101  PC
+==========  ======  ==================================
 
-Module List
------------
+Write:
 
-Comparer
-~~~~~~~~
-
-Compare raw_bus_0 and raw_bus_1 datas, result is the relationship of raw_bus_0
-and raw_bus_1. 
-For example, if raw_bus_0 is 1 and raw_bus_1 is 20, the result is large.
-The result is the ascii of >, <, =, and their combination.
+==========  ======  ==================================
+type        code    discription
+==========  ======  ==================================
+action      10      WRITE
+d_source    000000  IR
+            000001  AR
+            000010  DR0
+            000011  DR1
+            000100  CR config
+            000101  PC
+            1xxx    ALU
+==========  ======  ==================================
 
 
 
-Actions of Function
-===================
+For Efficiency
+==============
 
-Load Data
----------
+- Store write data(ALU result) in a result_regist.
 
-==============  ===============================
-command         action
-==============  ===============================
-immediate       set reading address to data bus
-empty
-mem_r_addr
-raw_bus_0
-==============  ===============================
+  If the read address is the same with the last writing address,
+  it read data from the result register directly,
+  without read memory.
 
-Save Data
----------
-
-==============  ===============================
-command         action
-==============  ===============================
-c_module*       set writing data to data bus
-mem_w_data
-mem_w_addr      enable save data 
-==============  ===============================
-
-JUMP
-----
-
-==================  ==============================================
-command             action
-==================  ==============================================
-immediate
-000000000           read data
-raw_bus_0           to compare data a 
-immediate
-000000000
-raw_bus_1           to compare data b 
-choice_compaire     get the relationship of a and b
-operand_to_write    prepare to write the compare result
-immediate
-000000000           read write addr
-choice_cache_data
-operand_w_addr      write action
-immediate
-000000000           read compare result address
-raw_bus_0
-immediate
-000000000           read transfer condition
-raw_bus_1
-transfer_condition  
-000000000           next_ir : true address
-000000000           next_ir : false address or continue process
-==================  ==============================================
-immediate
-000000000           next ir address
-choice_cache_data
-transfer_addr       set the result_bus data as the next ir address
-==================  ==============================================
-
-
+  It is very usefull for jump address caculation.
