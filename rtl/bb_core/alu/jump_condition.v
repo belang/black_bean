@@ -13,15 +13,15 @@
 module jump_condition(
     clk,
     rst_n,
-    i_perand0,
-    i_perand1,
+    i_operand0,
+    i_operand1,
     i_direct_addr,
     i_program_addr,
     o_addr
 );
 input clk, rst_n;
-input [`DATA_WIDTH-1:0] i_perand0, i_perand1, i_direct_addr, i_program_addr;
+input [`DATA_WIDTH-1:0] i_operand0, i_operand1, i_direct_addr, i_program_addr;
 output [`DATA_WIDTH-1:0] o_addr;
 
-assign o_addr = (i_perand0 == i_perand1) ? i_direct_addr : i_program_addr;
+assign o_addr = (i_operand0 == i_operand1) ? i_direct_addr : i_program_addr;
 endmodule

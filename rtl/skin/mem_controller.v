@@ -35,8 +35,8 @@ output mem_w_en;
 assign mem_r_en = i_action[0];
 assign mem_w_en = i_action[1];
 assign mem_w_data = i_data;
-assign mem_w_addr = i_memory_address;
-assign mem_r_addr = i_memory_address;
+assign mem_w_addr = i_address;
+assign mem_r_addr = i_address;
 assign o_data = mem_r_data ;
 
 endmodule

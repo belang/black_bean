@@ -8,24 +8,21 @@
 module program_counter(
     clk,
     rst_n,
-    i_action,
     i_pc_input_en,
+    i_pc_counter_en,
     i_data,
     o_pc
 );
 input clk, rst_n;
-input [1:0] i_action;
-input i_pc_input_en;
-input [`DATA_WIDTH-1:0] i_data; // input instruction
+input i_pc_input_en, i_pc_counter_en;
+input [`DATA_WIDTH-1:0] i_data;
 output [`DATA_WIDTH-1:0] o_pc;
-
-reg counter_en, set_counter;
 
 counter_parameter #(8) counter_8bit(
     .clk (clk),
     .rst_n (rst_n),
-    .i_set_en (set_counter),
-    .i_counter_en (counter_en),
+    .i_set_en (i_pc_input_en),
+    .i_count_en (i_pc_counter_en),
     .i_data (i_data),
     .number (o_pc)
 );

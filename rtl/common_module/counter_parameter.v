@@ -28,11 +28,11 @@ reg [width-1:0] reg_counter;
 
 always @(posedge clk) begin
     if (!rst_n) begin
-        reg_counter <= width'b0;
+        reg_counter <= 0;
     end else if (i_set_en) begin
         reg_counter <= i_data;
         end else if (i_count_en) begin
-            reg_counter <= reg_counter+width'h01;
+            reg_counter <= reg_counter+1;
     end
 end
 

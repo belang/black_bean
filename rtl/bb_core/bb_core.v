@@ -11,11 +11,11 @@ module bb_core(
     i_data,
     o_action,
     o_addr,
-    o_data,
+    o_data
 );
 input clk, rst_n;
 input [`DATA_WIDTH-1:0] i_data;
-output [`DATA_WIDTH-1:0] o_action;
+output [1:0] o_action;
 output [`DATA_WIDTH-1:0] o_addr;
 output [`DATA_WIDTH-1:0] o_data;
 
@@ -26,7 +26,7 @@ wire [5:0] unit_alu_output_en;
 wire [`DATA_WIDTH-1:0] direct_addr, operand0, operand1, program_addr;
 wire pc_counter_en;
 
-assign o_data = alu_result | register_result;
+assign o_data = alu_output | register_output;
 
 decoder decoder_0(
     .clk (clk),
@@ -36,24 +36,24 @@ decoder decoder_0(
     .o_unit_reg_input_en (unit_reg_input_en),
     .o_unit_reg_output_en (unit_reg_output_en),
     .o_unit_alu_output_en (unit_alu_output_en),
-    .o_action_read_addr_source (action_read_addr_source),
+    .o_mem_addr_source (mem_addr_source),
     .o_pc_counter_en (pc_counter_en)
 );
 
-data_reg_controller data_reg_controller_0(
+data_register_controller data_register_controller_0(
     .clk (clk),
     .rst_n (rst_n),
     .i_data (i_data),
     .i_unit_reg_input_en (unit_reg_input_en),
     .i_unit_reg_output_en (unit_reg_output_en),
     .i_unit_alu_output_en (unit_alu_output_en),
-    .i_action_read_addr_source (action_read_addr_source),
+    .i_mem_addr_source (mem_addr_source),
     .i_pc_counter_en (pc_counter_en),
     .o_direct_addr (direct_addr),
     .o_operand0 (operand0),
     .o_operand1 (operand1),
     .o_register_output (register_output),
-    .o_mem_read_addr (o_addr),
+    .o_mem_addr (o_addr),
     .o_program_addr (program_addr)
 );
 
@@ -67,4 +67,5 @@ alu alu_0(
     .i_program_addr (program_addr),
     .o_alu_output (alu_output)
 );
+
 endmodule

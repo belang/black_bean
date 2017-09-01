@@ -1,45 +1,37 @@
 ======================
-bean assembly language
+Bean Assembly Language
 ======================
 
 Introduction
 ============
 
-When simulate the verilog, write hexadecimal data is sophisticated and hard to
-remember the data.
-For convenient, testers write bean instruction and this compiler convert the
-file to hexadecimal format line by line.
-
-For jump address, the target address must be clear in the program.
-If the address is writen in direct format such as 0xf0,
-when the program is changed, the address must be chagned correspondingly.
-For this reason and maybe some other writing proram convenient,
-a bean assembly language is designed.
-
-Bean assembly language consits of two parts: bean machine instruction and 
-Bean assembly instruction.
+Bean assembly language consits of two parts: bean machine instruction and bean assembly instruction.
+A program can be writen in any one of the two instruction, or both.
+The BAI do not have the same instruction as BMI.
+A file with postfix .bmi is a BMI file, but that with .bai is mixed.
 
 Bean Machine Instruction
 ========================
 
 Bean Machine Instruction(BMI) map the instruction list defined in define.v.
 
-==========  ======================  ==========================  =====
-Chinese     Assembly language       Maching instruction         Value
-==========  ======================  ==========================  =====
-复位        reset                   RESET                       8'h00
-继续        continue                CONTINUE                    8'h01
-空          empty                   EMPTY                       8'h02
-转去        jump_directly           JUMP_DIRECTLY               8'h03
-选择        jump_condition          JUMP_CONDITION              8'h04
-存储        write_memory            WRITE_MEMORY                8'h05
-取甲        read_memory_to_bus_0    READ_MEMORY_TO_BUS_0        8'h06
-取乙        read_memory_to_bus_1    READ_MEMORY_TO_BUS_1        8'h07
-置甲        next_ins_to_bus_0       NEXT_INS_TO_BUS_0           8'h08
-置乙        next_ins_to_bus_1       NEXT_INS_TO_BUS_1           8'h09
-择甲        result_of_bus_0         RESULT_OF_BUS_0             8'h0a
-择乙        result_of_bus_1         RESULT_OF_BUS_1             8'h0b
-==========  ======================  ==========================  =====
+==============  =========
+BMI             binary
+==============  =========
+ACTION_PAUSE    2'b00
+ACTION_WRITE    2'b01
+ACTION_READ_AR  2'b10
+ACTION_READ_PC  2'b11
+UNIT_NULL       6'b000000
+UNIT_IR         6'b000001
+UNIT_AR         6'b000010
+UNIT_DR0        6'b000011
+UNIT_DR1        6'b000100
+UNIT_CR         6'b000101
+UNIT_PC         6'b000110
+ALU_COMPARER    6'b100001
+ALU_JUMP_COND   6'b100010
+==============  =========
 
 Bean Assembly Instruction
 =========================

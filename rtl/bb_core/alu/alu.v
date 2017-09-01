@@ -9,15 +9,15 @@ module alu(
     clk,
     rst_n,
     i_unit_alu_output_en,
-    i_perand0,
-    i_perand1,
+    i_operand0,
+    i_operand1,
     i_direct_addr,
     i_program_addr,
-    o_alu_output,
+    o_alu_output
 );
 input clk, rst_n;
 input [5:0] i_unit_alu_output_en;
-input [`DATA_WIDTH-1:0] i_perand0, i_perand1, i_direct_addr, i_program_addr;
+input [`DATA_WIDTH-1:0] i_operand0, i_operand1, i_direct_addr, i_program_addr;
 output [`DATA_WIDTH-1:0] o_alu_output;
 
 wire [`DATA_WIDTH-1:0] comparer_relation, jump_addr;
@@ -37,23 +37,24 @@ always @(i_unit_alu_output_en) begin
     endcase
 end
 
+assign o_alu_output = o_result;
+
 comparer comparer_0(
     .clk (clk),
     .rst_n (rst_n),
-    .i_perand0 (i_perand0),
-    .i_perand1 (i_perand1),
+    .i_data0 (i_operand0),
+    .i_data1 (i_operand1),
     .o_relation (comparer_relation)
 );
 
 jump_condition jump_condition_0(
     .clk (clk),
     .rst_n (rst_n),
-    .i_perand0 (i_perand0),
-    .i_perand1 (i_perand1),
+    .i_operand0 (i_operand0),
+    .i_operand1 (i_operand1),
     .i_direct_addr (i_direct_addr),
     .i_program_addr (i_program_addr),
     .o_addr (jump_addr)
 );
-
 
 endmodule

@@ -14,12 +14,12 @@
 
 // data reg encode
 `define UNIT_NULL       6'b000000
-`define UNIT_IR         6'b000000
-`define UNIT_AR         6'b000001
-`define UNIT_DR0        6'b000010
-`define UNIT_DR1        6'b000011
-`define UNIT_MR         6'b000100
-`define UNIT_PC         6'b000101
+`define UNIT_IR         6'b000001
+`define UNIT_AR         6'b000010
+`define UNIT_DR0        6'b000011
+`define UNIT_DR1        6'b000100
+`define UNIT_CR         6'b000101
+`define UNIT_PC         6'b000110
 
 // alu encode
 `define ALU_COMPARER    6'b100001

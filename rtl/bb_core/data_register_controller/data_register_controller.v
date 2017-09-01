@@ -15,13 +15,13 @@ module data_register_controller(
     i_unit_reg_input_en,
     i_unit_reg_output_en,
     i_unit_alu_output_en,
-    i_action_read_addr_source,
+    i_mem_addr_source,
     i_pc_counter_en,
     o_direct_addr,
-    o_perand0,
-    o_perand1,
+    o_operand0,
+    o_operand1,
     o_register_output,
-    o_mem_read_addr,
+    o_mem_addr,
     o_program_addr
 );
 
@@ -30,13 +30,14 @@ input [`DATA_WIDTH-1:0] i_data;
 input [5:0] i_unit_reg_input_en ;
 input [5:0] i_unit_reg_output_en;
 input [5:0] i_unit_alu_output_en;
-input i_action_read_addr_source, i_pc_counter_en;
-output [`DATA_WIDTH-1:0] o_direct_addr, o_perand0, o_perand1;
+input i_mem_addr_source, i_pc_counter_en;
+output [`DATA_WIDTH-1:0] o_direct_addr, o_operand0, o_operand1;
 output [`DATA_WIDTH-1:0] o_register_output;
-output [`DATA_WIDTH-1:0] o_mem_read_addr;
+output [`DATA_WIDTH-1:0] o_mem_addr;
 output [`DATA_WIDTH-1:0] o_program_addr;
 
 reg [`DATA_WIDTH-1:0] reg_AR, reg_DR0, reg_DR1 ;
+wire [`DATA_WIDTH-1:0] program_addr;
 
 always @(posedge clk) begin
     if (!rst_n) begin
@@ -56,17 +57,17 @@ assign o_register_output =
     (i_unit_reg_output_en[3] ? reg_DR1       : `DATA_WIDTH'h0) |
     (i_unit_reg_output_en[5] ? program_addr  : `DATA_WIDTH'h0) ;
 
-assign o_direct_addr   = reg_AR;
-assign o_perand0       = reg_DR0;
-assign o_perand1       = reg_DR1;;
-assign o_mem_read_addr = i_action_read_addr_source ? program_addr : reg_AR;
-assign o_program_addr  = program_addr;
+assign o_direct_addr    = reg_AR;
+assign o_operand0       = reg_DR0;
+assign o_operand1       = reg_DR1;
+assign o_mem_addr       = i_mem_addr_source ? program_addr : reg_AR;
+assign o_program_addr   = program_addr;
 
 program_counter program_counter_0(
     .clk (clk),
     .rst_n (rst_n),
-    .i_action (action),
     .i_pc_input_en (i_unit_reg_input_en[5]),
+    .i_pc_counter_en(i_pc_counter_en),
     .i_data (i_data),
     .o_pc (program_addr)
 );

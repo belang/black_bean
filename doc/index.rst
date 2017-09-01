@@ -12,6 +12,7 @@ Contents:
    action_instruction.rst
    implementation.rst
    bean_assembly_language.rst
-   black_bean_compiler_assemble.rst
+   black_bean_assembly_compiler.rst
+   rtl_simulation.rst
    design_recore.rst
 

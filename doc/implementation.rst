@@ -17,15 +17,15 @@ and the output is decided by both state and n_action/n_unit.
 State
 -----
 
-==========  ========  ==================================
-state       code      discription
-==========  ========  ==================================
-IDLE        5'b00000  initial state, hard reset
-PAUSE       5'b00001  do not deal with input
-READ_IR     5'b00010  the reading data is an instruction
-READ_DA     5'b00100  the reading data is a data
-WRITE       5'b01000  write data to memory
-==========  ========  ==================================
+==========  ==================================
+state       discription
+==========  ==================================
+IDLE        initial state, hard reset
+PAUSE       do not deal with input
+READ_IR     the reading data is an instruction
+READ_DA     the reading data is a data
+WRITE       write data to memory
+==========  ==================================
 
 Instruction
 -----------
@@ -47,12 +47,12 @@ Unit:
 unit            discription
 ==============  ==============================================================
 UNIT_NULL       stop
-UNIT_IR         6'b0000006'b000001
-UNIT_AR         6'b0000016'b000010
-UNIT_DR0        6'b0000106'b000100
-UNIT_DR1        6'b0000116'b001000
-UNIT_CR         6'b0001006'b010000
-UNIT_PC         6'b0001016'b100000
+UNIT_IR         instruction register
+UNIT_AR         address register
+UNIT_DR0        operand 0 register
+UNIT_DR1        operand 1 register
+UNIT_CR         config register
+UNIT_PC         program counter register
 UNIT_ALU        wait the finished signal from the special ALU
 ==============  ==============================================================
 

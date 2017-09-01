@@ -8,10 +8,10 @@
 module black_bean(
     clk,
     rst_n,
-    mem_r_dbus,
-    mem_r_abus,
-    mem_w_dbus,
-    mem_w_abus,
+    mem_r_data,
+    mem_r_addr,
+    mem_w_data,
+    mem_w_addr,
     mem_r_en,
     mem_w_en
 );
@@ -32,7 +32,7 @@ bb_core bb_core_0(
     .i_data (mem_data_read_in),
     .o_action (mem_action),
     .o_addr (mem_address),
-    .o_data (mem_data_to_write),
+    .o_data (mem_data_to_write)
 );
 
 mem_controller mem_controller_0(
@@ -40,8 +40,8 @@ mem_controller mem_controller_0(
     .rst_n (rst_n),
     .i_action (mem_action),
     .i_address (mem_address),
-    .i_data (mem_data_read_in),
-    .o_data (mem_data_to_write),
+    .i_data (mem_data_to_write),
+    .o_data (mem_data_read_in),
     .mem_r_data (mem_r_data),
     .mem_r_addr (mem_r_addr),
     .mem_w_data (mem_w_data),
