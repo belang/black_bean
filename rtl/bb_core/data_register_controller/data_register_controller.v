@@ -67,7 +67,7 @@ program_counter program_counter_0(
     .clk (clk),
     .rst_n (rst_n),
     .i_pc_input_en (i_unit_reg_input_en[5]),
-    .i_pc_counter_en(i_pc_counter_en),
+    .i_pc_count_en(i_pc_counter_en),
     .i_data (i_data),
     .o_pc (program_addr)
 );

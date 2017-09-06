@@ -8,11 +8,10 @@ Contents:
 
    introduction.rst
    terms.rst
-   architecture.rst
-   action_instruction.rst
-   implementation.rst
-   bean_assembly_language.rst
+   black_bean_architecture.rst
+   black_bean_instruction_set_architecture.rst
+   black_bean_processor.rst
+   black_bean_assembly_language.rst
    black_bean_assembly_compiler.rst
-   rtl_simulation.rst
    design_recore.rst
 

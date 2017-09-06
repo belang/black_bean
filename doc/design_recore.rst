@@ -23,4 +23,7 @@ Record the daily work.
   simu the rtl. to be continue.
 
 - 2017-09-01
-  secceed in simulation in writing an data from the immediate data to special memory address.
+  succeed in simulation in writing an data from the immediate data to special memory address.
+- 2017-09-05
+  succeed in jump. change action instruction to source-target instruction.
+  next Data register -> PC

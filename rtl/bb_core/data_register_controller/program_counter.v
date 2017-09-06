@@ -9,22 +9,24 @@ module program_counter(
     clk,
     rst_n,
     i_pc_input_en,
-    i_pc_counter_en,
+    i_pc_count_en,
     i_data,
     o_pc
 );
 input clk, rst_n;
-input i_pc_input_en, i_pc_counter_en;
+input i_pc_input_en, i_pc_count_en;
 input [`DATA_WIDTH-1:0] i_data;
 output [`DATA_WIDTH-1:0] o_pc;
 
-counter_parameter #(8) counter_8bit(
-    .clk (clk),
-    .rst_n (rst_n),
-    .i_set_en (i_pc_input_en),
-    .i_count_en (i_pc_counter_en),
-    .i_data (i_data),
-    .number (o_pc)
-);
+reg [`DATA_WIDTH:0] reg_counter;
+
+always @(posedge clk) begin
+    if (!rst_n) begin
+        reg_counter <= 0;
+    end else if (i_pc_count_en) begin
+        reg_counter <= o_pc+1;
+    end
+end
+assign o_pc = i_pc_input_en ? i_data : reg_counter;
 
 endmodule

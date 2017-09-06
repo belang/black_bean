@@ -27,7 +27,7 @@ flow is the order of the single action.
 The computing module is called arithmetic logic unit(ALU),
 the flow control module is called controller.
 The processor is controlled by the instruciton.
-All instrucitons of a processor is called instruciton set.
+All instructions of a processor is called instruciton set.
 
 Instruction Set
 ===============
@@ -41,7 +41,7 @@ Universal ISA
 
 The Instruction Set Architecture(ISA) detemines the processor structure.
 A program compiled to a certain IS, can excute on the same type processor.
-Across ISA, program usually need to be rewritten or changed some instrucitons,
+Across ISA, program usually need to be rewritten or changed some instructions,
 because the assembly languages are different.
 
 An instruction is usually consist of operation and operands.

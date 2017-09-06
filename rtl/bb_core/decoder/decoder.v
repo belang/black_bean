@@ -6,10 +6,11 @@
 `include "define.v"
 
 `define STATE_IDLE          5'b00000
-`define STATE_READ_IR       5'b00001
-`define STATE_READ_DA       5'b00010
-`define STATE_WRITE         5'b00100
-`define STATE_PAUSE         5'b01000
+`define STATE_PAUSE         5'b00001
+`define STATE_READ_IR       5'b00010
+`define STATE_READ_DA       5'b00100
+`define STATE_WRITE         5'b01000
+`define STATE_SET_PC        5'b10000
 
 module decoder(
     clk,
@@ -77,6 +78,10 @@ always @(reg_state, i_action, i_unit) begin
             n_action = `ACTION_READ_PC;
             n_core_reg   = `UNIT_IR;
         end
+        `STATE_SET_PC: begin
+            n_action = `ACTION_PAUSE;
+            n_core_reg   = `UNIT_PC;
+        end
         default: begin
             n_action = `ACTION_PAUSE;
             n_core_reg   = `UNIT_NULL;
@@ -88,17 +93,20 @@ end
 always @(n_action, n_core_reg) begin
     case (n_action)
         `ACTION_PAUSE: begin
-            next_state = `STATE_PAUSE;
+            if (n_core_reg == `UNIT_PC) next_state = `STATE_READ_IR;
+            else next_state = `STATE_PAUSE;
         end
         `ACTION_WRITE: begin
             next_state = `STATE_WRITE;
         end
         `ACTION_READ_PC: begin
             if (n_core_reg == `UNIT_IR) next_state = `STATE_READ_IR;
+            //else if (n_core_reg == `UNIT_PC) next_state = `STATE_SET_PC;
             else next_state = `STATE_READ_DA;
         end
         `ACTION_READ_AR: begin
             if (n_core_reg == `UNIT_IR) next_state = `STATE_READ_IR;
+            //else if (n_core_reg == `UNIT_PC) next_state = `STATE_SET_PC;
             else next_state = `STATE_READ_DA;
         end
         default: begin
@@ -162,7 +170,7 @@ always @(n_action, n_core_reg) begin
             o_mem_action            = `MEM_WRITE;
         end
         `ACTION_PAUSE: begin
-            core_regs_input_en = `DU_NULL;
+            core_regs_input_en = unit_decoded_value;
             o_mem_addr_source      = `ADDR_FROM_AR;
             o_unit_reg_output_en    = `DU_NULL;
             o_unit_alu_output_en    = `DU_NULL;
