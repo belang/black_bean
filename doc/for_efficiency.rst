@@ -212,3 +212,32 @@ processed? To be hold, cancelled or jumped?
 To realize the complete function, the instruction must be excuted, so the
 excution must be paused. This requires every port with multi cycles
 funcitons can feedback a busy signal.
+
+Store write data(ALU result) in a result_regist.
+================================================
+
+  If the read address is the same with the last writing address,
+  it read data from the result register directly,
+  without read memory.
+
+  It is very usefull for jump address caculation.
+
+AR auto increment.
+==================
+
+When READ_AR, AR auto increment one row.
+
+Each ALU has a special registers.
+=================================
+
+more address supports.
+
+AR and CR may share a register
+==============================
+
+not sure.
+
+IOs exchange data directly
+==========================
+
+exchange a large mount of data directly.

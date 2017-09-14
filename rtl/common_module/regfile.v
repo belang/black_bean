@@ -70,6 +70,6 @@ end
     //end
 //end
 
-assign o_data = reg_stored_data[reg_address];
+assign o_data = reg_stored_data[i_address];
 
 endmodule

@@ -17,9 +17,10 @@ if { [file isfile "${project_name}.mpf"] } {
     project addfile ../rtl/bb_core/alu/comparer.v                                       verilog 
     project addfile ../rtl/bb_core/alu/jump_condition.v                                 verilog 
     project addfile ../rtl/bb_core/decoder/decoder.v                                    verilog 
-    project addfile ../rtl/bb_core/data_register_controller/data_register_controller.v  verilog 
-    project addfile ../rtl/bb_core/data_register_controller/program_counter.v           verilog 
+    project addfile ../rtl/bb_core/common_register/common_register.v                    verilog 
+    project addfile ../rtl/bb_core/common_register/address_caculator.v                  verilog 
     project addfile ../rtl/skin/mem_controller.v                                        verilog 
+    project addfile ../rtl/IOSC/iosc_ins.v                                              verilog 
 }
 
 vlog -work $sim_lib_name testbench.v

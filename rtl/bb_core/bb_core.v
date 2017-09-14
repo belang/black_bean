@@ -8,64 +8,83 @@
 module bb_core(
     clk,
     rst_n,
-    i_data,
-    o_action,
-    o_addr,
-    o_data
+    i_ins_data,
+    o_ins_oen,
+    o_ins_ien,
+    o_ins_addr,
+    o_ins_pc,
+    o_ins_data,
+    i_oth_data,
+    o_oth_oen,
+    o_oth_ien,
+    o_oth_addr,
+    o_oth_data
 );
-input clk, rst_n;
-input [`DATA_WIDTH-1:0] i_data;
-output [1:0] o_action;
-output [`DATA_WIDTH-1:0] o_addr;
-output [`DATA_WIDTH-1:0] o_data;
+
+input  clk,  rst_n;
+input  [`DATA_WIDTH-1:0] i_ins_data;
+output [1:0] o_ins_oen;
+output [1:0] o_ins_ien;
+output [`DATA_WIDTH-1:0] o_ins_addr, o_ins_pc;
+output [`DATA_WIDTH-1:0] o_ins_data;
+input  [`DATA_WIDTH-1:0] i_oth_data;
+output o_oth_oen, o_oth_ien;
+output [`DATA_WIDTH-1:0] o_oth_addr;
+output [`DATA_WIDTH-1:0] o_oth_data;
 
 wire [`DATA_WIDTH-1:0] alu_output, register_output ;
-wire [5:0] unit_reg_input_en ;
-wire [5:0] unit_reg_output_en;
-wire [5:0] unit_alu_output_en;
-wire [`DATA_WIDTH-1:0] direct_addr, operand0, operand1, program_addr;
-wire pc_counter_en;
+wire [`DATA_WIDTH-1:0] address_reg, config_reg ;
+wire [`DATA_WIDTH-1:0] operand0, operand1, program_count;
+wire [`DATA_WIDTH-1:0] device_data, ins;
+wire [15:0] unit_oen, unit_ien;
 
-assign o_data = alu_output | register_output;
+assign device_data = unit_oen[13] ? i_oth_data : i_ins_data;
+assign o_ins_oen  = unit_oen[12:11];
+assign o_ins_ien  = unit_ien[12:11];
+assign o_ins_data = alu_output | register_output;
+assign o_ins_addr = address_reg;
+assign o_ins_pc   = program_count;
+assign o_oth_oen  = unit_oen[13];
+assign o_oth_ien  = unit_ien[13];
+assign o_oth_addr = address_reg;
+assign o_oth_data = alu_output | register_output;
 
 decoder decoder_0(
     .clk (clk),
     .rst_n (rst_n),
-    .i_ir (i_data),
-    .o_mem_action (o_action),
-    .o_unit_reg_input_en (unit_reg_input_en),
-    .o_unit_reg_output_en (unit_reg_output_en),
-    .o_unit_alu_output_en (unit_alu_output_en),
-    .o_mem_addr_source (mem_addr_source),
-    .o_pc_counter_en (pc_counter_en)
-);
-
-data_register_controller data_register_controller_0(
-    .clk (clk),
-    .rst_n (rst_n),
-    .i_data (i_data),
-    .i_unit_reg_input_en (unit_reg_input_en),
-    .i_unit_reg_output_en (unit_reg_output_en),
-    .i_unit_alu_output_en (unit_alu_output_en),
-    .i_mem_addr_source (mem_addr_source),
-    .i_pc_counter_en (pc_counter_en),
-    .o_direct_addr (direct_addr),
-    .o_operand0 (operand0),
-    .o_operand1 (operand1),
-    .o_register_output (register_output),
-    .o_mem_addr (o_addr),
-    .o_program_addr (program_addr)
+    .i_ins (ins),
+    .o_unit_ien (unit_ien),
+    .o_unit_oen (unit_oen)
 );
 
 alu alu_0(
     .clk (clk),
     .rst_n (rst_n),
-    .i_unit_alu_output_en (unit_alu_output_en),
+    .i_alu_re_oen (unit_oen[8]),
+    .i_alu_ad_oen (unit_oen[9]),
     .i_operand0 (operand0),
     .i_operand1 (operand1),
-    .i_direct_addr (direct_addr),
-    .i_program_addr (program_addr),
+    .i_address_reg (address_reg),
+    .i_program_count (program_count),
+    .i_config (config_reg),
     .o_alu_output (alu_output)
 );
+
+common_register common_register_0(
+    .clk (clk),
+    .rst_n (rst_n),
+    .i_skin_data (device_data),
+    .i_core_data (o_ins_data),
+    .i_unit_ien (unit_ien),
+    .i_unit_oen (unit_oen),
+    .o_address_reg (address_reg),
+    .o_operand0 (operand0),
+    .o_operand1 (operand1),
+    .o_config_reg (config_reg),
+    .o_program_count (program_count),
+    .o_instruction(ins),
+    .o_reg_value (register_output)
+);
+
 
 endmodule

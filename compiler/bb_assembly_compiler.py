@@ -33,7 +33,7 @@ PARSER.add_argument('-o', metavar='output file/directory', dest='output_file',
 
 ARGS = PARSER.parse_args()
 
-CONFIG = {'BMI_file_size': 2**20}
+CONFIG = {'BMI_file_size': 1048576}
 
 def bean_write_file(fname, lines):
     """translate bean language to instruction in memory."""
@@ -108,8 +108,11 @@ def analyse_bmi_patter(contents):
     for one_pattern in re.finditer(ic.BMI_TOKEN_EX, contents):
         lexical_type = one_pattern.lastgroup
         lexical_str  = one_pattern.group(lexical_type)
-        if lexical_type == 'data':
-            yield bbc.verilog_number_to_binary_string(lexical_str)
+        if lexical_type == 'return':
+            yield lexical_str
+        elif lexical_type == 'data':
+            #yield bbc.verilog_number_to_binary_string(lexical_str)
+            yield bbc.verilog_number_to_hexadecimal_string(lexical_str)
         elif lexical_type == 'command':
             print(lexical_str)
             yield "".join(ic.BMI_map[name] for name in lexical_str.split(' '))
@@ -122,7 +125,8 @@ def convert_bmi_to_memory_initial(in_file, out_file):
     with open(in_file, 'r') as fin:
         all_content = fin.read()
     with open(out_file, 'w') as fout:
-        fout.writelines(["{}\n".format(x) for x in analyse_bmi_patter(all_content)])
+        #fout.writelines(["{}\n".format(x) for x in analyse_bmi_patter(all_content)])
+        fout.writelines([x for x in analyse_bmi_patter(all_content)])
 
 
 def compile_file(args):
@@ -130,18 +134,21 @@ def compile_file(args):
     glabel_position     record the label position of the file."""
     glabel_position = {}
     if os.path.isfile(args.input_file):
+        if os.stat(args.input_file).st_size > CONFIG['BMI_file_size']:
+            raise Exception("file size > {}".format(CONFIG['BMI_file_size']))
         if args.input_file.endswith('bmi'):
             if args.output_file is None:
-                convert_bmi_to_memory_initial(args.input_file, "{}bmb".format(args.input_file[0:-3]))
+                out_file = "{}bmb".format(args.input_file[0:-3])
             elif os.path.isdir(args.output_file):
-                convert_bmi_to_memory_initial(args.input_file, join("{}bmb".format(args.input_file[0:-3])))
+                out_file = join("{}bmb".format(args.input_file[0:-3]))
             elif os.path.isfile(args.output_file):
                 if args.output_file.endswith('bmb'):
-                    convert_bmi_to_memory_initial(args.input_file, args.output_file)
+                    out_file = args.output_file
                 else:
-                    convert_bmi_to_memory_initial(args.input_file, "{}.bmb".format(args.output_file))
+                    out_file = "{}.bmb".format(args.output_file)
             else:
                 raise Exception("the output arguments should be a directory.")
+            convert_bmi_to_memory_initial(args.input_file, out_file)
         elif args.input_file.endswith('bai'):
             #TODO : prograss bai 
             pass

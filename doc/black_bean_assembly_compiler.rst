@@ -20,17 +20,22 @@ BMI Pattern
 
 Assemble pattern are shown as follow:
 
+return          new line, keep
+    `\n`
+
 data            data
     `\d'h\d+`
 
-normal_ins      normal machine instruction
-    `^([ACTION_\w*]) (([UNIT_\w*])|([ALU_\W*]))`
+command         normal machine instruction
+    `(CORE_\w*)|(IOSC_\w*)|(ALU_\w*)`
 
 Algorithm
 ---------
 
 1. check file size, make sure the file is smaller tham 1M.
-2. read in all, and iterate match BMI patten, convert to benary string.
+2. read in all, and convert to benary/hexademic string.
+
+   1. 
 
 
 =============  ==============================  ==================================

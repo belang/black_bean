@@ -23,5 +23,18 @@ def verilog_number_to_binary_string(vstr):
         tnew = tvalue[-1*int(tvlist[0]):]
     return tnew
 
+def verilog_number_to_hexadecimal_string(vstr):
+    """convert a verilog number such as 8'h9a to a binary string as 9a."""
+    try:
+        tvlist = vstr.split("'h")
+    except:
+        raise Exception("a wrong data type: {}".format(vstr))
+    bit_len = int(int(tvlist[0])/4)
+    if len(tvlist[1]) <= bit_len:
+        tnew = tvlist[1].rjust(bit_len, '0')
+    else:
+        tnew = tvlist[-1*bit_len:]
+    return tnew
+
 if __name__ == "__main__":
     print("black_bean_common_func.py")

@@ -23,24 +23,29 @@ assemble_pattern = {
         }
 
 BMI_pattern = {
+        'return'        : r"\n",
         'data'          : r"\d+'h[a-c0-9]+",
-        'command'       : r"ACTION_\w* ((UNIT_\w*)|(ALU_\w*))"
+        'command'       : r"(CORE_\S*)|(IOSC_\S*)|(ALU_\S*)"
         }
 
 BMI_map = {
-        'ACTION_PAUSE'    : '00',
-        'ACTION_WRITE'    : '01',
-        'ACTION_READ_AR'  : '10',
-        'ACTION_READ_PC'  : '11',
-        'UNIT_NULL'       : '000000',
-        'UNIT_IR'         : '000001',
-        'UNIT_AR'         : '000010',
-        'UNIT_DR0'        : '000011',
-        'UNIT_DR1'        : '000100',
-        'UNIT_CR'         : '000101',
-        'UNIT_PC'         : '000110',
-        'ALU_COMPARER'    : '100001',
-        'ALU_JUMP_COND'   : '100010'
+        'CORE_NULL'       : '0',
+        'CORE_IR'         : '1',
+        'CORE_PC'         : '2',
+        'CORE_AR'         : '3',
+        'CORE_DR0'        : '4',
+        'CORE_DR1'        : '5',
+        'CORE_CR'         : '6',
+        'CORE_EMPTY'      : '7',
+        'ALU_RE'          : '8',
+        'ALU_AD'          : '9',
+        'CORE_EMPTY'      : 'a',
+        'CORE_EMPTY'      : 'b',
+        'IOSC_INS_PC'     : 'c',
+        'IOSC_INS_AR'     : 'd',
+        'IOSC_OTH'        : 'e',
+        'IOSC_NULL'       : 'f'
+
 }
 
 BMI_TOKEN_EX = '|'.join('(?P<%s>%s)' % item for item in BMI_pattern.items())

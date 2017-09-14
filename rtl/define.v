@@ -12,27 +12,37 @@
 `define ACTION_READ_AR  2'b10
 `define ACTION_READ_PC  2'b11
 
-// data reg encode
-`define UNIT_NULL       6'b000000
-`define UNIT_IR         6'b000001
-`define UNIT_AR         6'b000010
-`define UNIT_DR0        6'b000011
-`define UNIT_DR1        6'b000100
-`define UNIT_CR         6'b000101
-`define UNIT_PC         6'b000110
+// core reg encode
+`define CORE_NULL       4'h0
+`define CORE_IR         4'h1
+`define CORE_PC         4'h2
+`define CORE_AR         4'h3
+`define CORE_DR0        4'h4
+`define CORE_DR1        4'h5
+`define CORE_CR         4'h6
+//`define CORE_EMPTY      4'h7
+`define ALU_RE          4'h8
+`define ALU_AD          4'h9
+//`define CORE_EMPTY      4'ha
+//`define CORE_EMPTY      4'hb
+`define IOSC_INS_PC     4'hc
+`define IOSC_INS_AR     4'hd
+`define IOSC_OTH        4'he
+`define IOSC_NULL       4'hf
 
-// alu encode
-`define ALU_COMPARER    6'b100001
-`define ALU_JUMP_COND   6'b100010
+// Config Register --  ALU encode
+`define ALU_COMPARER    8'h01
+`define ALU_JUMP_CON    8'h02
 
-// data reg Decode
-`define DU_IR               6'b000001
-`define DU_AR               6'b000010
-`define DU_DR0              6'b000100
-`define DU_DR1              6'b001000
-`define DU_CR               6'b010000
-`define DU_PC               6'b100000
-`define DU_NULL             6'b000000
+
+
+// core Decode
+`define DC_AR               6'b000001
+`define DC_CR               6'b000010
+`define DC_PC               6'b000100
+`define DC_DR0              6'b001000
+`define DC_DR1              6'b010000
+`define DC_NULL             6'b000000
 
 // address Decode
 `define ADDR_FROM_AR        1'b0
@@ -42,8 +52,6 @@
 `define MEM_READ         2'b01
 `define MEM_WRITE        2'b10
 `define MEM_PAUSE        2'b00
-
-
 
 // OUT_DEVICE
 `define PORT_MEM_IR             8'h01

@@ -27,3 +27,8 @@ Record the daily work.
 - 2017-09-05
   succeed in jump. change action instruction to source-target instruction.
   next Data register -> PC
+- 2017-09-08
+  restructure the core, change the instruction type to source -> target.
+  next add IOSC_OTH data input support.
+- 2017-09-11
+  prepare to simulation
