@@ -19,6 +19,8 @@ Decoder
 
 The decoder decodes the instruction according to current state,
 decides the next state and export control signals.
+Not all instructions is decoded in Decoder.
+Some convenient instructions are realized in the related function moduls.
 
 The input and state decide the next state and output.
 Here let n_source and n_target indicate the next excuting instruction.
@@ -74,33 +76,34 @@ READ_IR     input instruction
 TRANS_DA    ISC_INS, CORE_IR
 ==========  ====================================================
 
-==============  ==========  ==========
-Instruction     source      target
-==============  ==========  ==========
-ISC_*           ins*_oen    ins*_ien
-CORE_*          reg*_oen    reg*_ien
-ALU_*           alu*_oen    RESERVED
-==============  ==========  ==========
-
-==================  =====================================================
-output signals      discription
-==================  =====================================================
-o_isc_selection     select the ISC which export data to or read data from
-==================  =====================================================
-
 Data Register
 =============
 
-i_data_source_type      1: input data is from ISC
+Convenient Instruction
+----------------------
 
-Address Caculater(PC)
-=====================
+Plus 1
+~~~~~~
+
+- Instruction: *CORE_DR0 CORE_DR0*
+
+- Realize: If the source and target are both reg_DR0, then the o_reg_value is reg_DR0+1.
+
+Branch Instruction
+------------------
+
+- Instruction: *CORE_CR CORE_PC*
+
+- Realize: The o_reg_value is set to brancher.
+
+Program Counter
+---------------
 
 Program Counter is a 8 bits counter.
 It counts the number of the program by the next instruction.
 (Another methord is by the current state, not used here.)
 
-1. set PC to input data
+1. set PC from input data
 
    - * CORE_PC : means jump where address is from PC or AR
 
@@ -130,12 +133,16 @@ and dr_1.
 For example, if dr_0 is 1 and dr_1 is 20, the result is large.
 The result is the ascii of >, <, =, and their combination.
 
-ISC INS
-=======
+SKIN_INS_AR
+===========
 
 Instruction interface has two address port, for addressing.
-ISC_INS_AR/PC deside using which address.
+SKIN_INS_AR/PC deside using which address.
 
+DATA BUS
+========
+
+:TODO:
 
 Question
 ========

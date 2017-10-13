@@ -14,7 +14,7 @@ Contents:
    introduction.rst
    terms.rst
    black_bean_architecture.rst
-   black_bean_instruction_set_architecture.rst
+   Instruction Set Architecture <black_bean_instruction_set_architecture.rst>
    black_bean_processor.rst
    black_bean_assembly_language.rst
    black_bean_assembly_compiler.rst

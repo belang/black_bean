@@ -23,8 +23,8 @@ def verilog_number_to_binary_string(vstr):
         tnew = tvalue[-1*int(tvlist[0]):]
     return tnew
 
-def verilog_number_to_hexadecimal_string(vstr):
-    """convert a verilog number such as 8'h9a to a binary string as 9a."""
+def verilog_number_to_hex(vstr):
+    """convert a verilog number such as 8'h9a to a hexadecimal string as 9a."""
     try:
         tvlist = vstr.split("'h")
     except:
@@ -33,8 +33,12 @@ def verilog_number_to_hexadecimal_string(vstr):
     if len(tvlist[1]) <= bit_len:
         tnew = tvlist[1].rjust(bit_len, '0')
     else:
-        tnew = tvlist[-1*bit_len:]
+        tnew = tvlist[1][-1*bit_len:]
     return tnew
+
+def int_to_verilog_hex(width, vstr):
+    """10 to 8'h0a"""
+    return "{}'h{}".format(width, hex(vstr)[2:].rjust(int(int(width)/4), '0'))
 
 if __name__ == "__main__":
     print("black_bean_common_func.py")

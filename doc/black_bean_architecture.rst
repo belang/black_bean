@@ -37,11 +37,6 @@ so the BBP use config register(CR) to store the config information.
 To read data from a direct address,
 there is a address register(AR) to store the address.
 
-Interrupt
-=========
-
-null
-
 Data Flow
 =========
 
@@ -50,6 +45,18 @@ Instruction Source
 
 The instruction is only from the IOSC_INS or from other location such as IOSC_OTH, Core_output?
 Currentlly, it is from all place.
+
+Addressing
+==========
+
+Current is direct addressing.
+
+TODO: Support diplacement addressing
+
+Interrupt
+=========
+
+null
 
 Features
 ========
@@ -61,10 +68,13 @@ Features
    That also is the processor don't jump to another section of instructions to
    excute them
 
-2. ISA and the machine code excution are decoupled.
-   The ISA is the same but the excution is different, depanding on the physical logic.
-   For example, if the core read 16 bits once, then the excution is parrallelism double instructions, if the core read 8 bits once, then the instructions excute sequencely.
-   The abbility and effiency are much more on the processor structure than the ISA.
-
+2. Each instruction excutes in one cycle.
+   That is every cycle, there is an instruction. The program is large.
 3. Change the program dynamiclly.
+
    An instruction can write data to change the origin program.
+
+TODO
+====
+
+1. PC relative addressing mode for control flow instrucitons.

@@ -1,7 +1,3 @@
-============================
-Instruction Set Architecture
-============================
-
 Introduction
 ============
 
@@ -44,7 +40,7 @@ CORE_AR         0011     地址     address register
 CORE_DR0        0100     第一     operand register 0
 CORE_DR1        0101     第二     operand register 1
 CORE_CR         0110     算术     ALU config register
-EMPTY           0111     保留     RESERVED
+CORE_BR         0111     分支     RESERVED 【branch config (relation, not full code)】
 ALU_RE          1000     结果     ALU normal result
 ALU_AD          1001     例外     ALU additional result
 EMPTY           1010     保留     RESERVED
@@ -79,6 +75,40 @@ ALU_COMPARER    8'h00    en
 ALU_JUMP_CON    8'h01    en
 ==============  =======  =========================================================
 
+Machine Instruction
+-------------------
+
+====  ===================  ===============================================
+type  machine instruction  description
+====  ===================  ===============================================
+0     source target        read source and send data to target
+1     IOSC_* CORE_*        read IOSC, write register
+2     CORE_* IOSC_*        read register, write IOSC
+3     ALU_*  IOSC_*        write ALU result to IOSC
+4     CORE_* CORE_*        register to register
+5     ALU_*  CORE_*        ALU result to register
+6     IOSC_* IOSC_*        RESERVED
+====  ===================  ===============================================
+0.2   CORE_PC CORE_PC      hold, redo 
+0.3   IOSC_NULL            RESERVED
+0.4   *  ALU_*             RESERVED
+0.5   *  CORE_CR           config the ALU and enable its export.
+1.1   IOSC_INS_AR CORE_*   the address is from AR
+1.2   IOSC_INS_PC CORE_*   the address is from PC
+2.1   CORE_* IOSC_INS_AR   the address is from AR, 
+2.2   CORE_* IOSC_INS_PC   RESERVED
+2.3   CORE_* IOSC_OTH      the address is from AR
+3.1   ALU_*  IOSC_*        the same as the CORE_*
+
+spcecial command
+
+===================  ===============================================
+x_x      CORE_IR     read instruction
+x_x      CORE_PC     jump
+CORE_CR  CORE_PC     branch
+CORE_DR0 CORE_DR0    DR0 <=  DR0 + 1
+===================  ===============================================
+
 Addressing 
 ===========
 
@@ -94,8 +124,33 @@ The address of other devices is only from AR.
 Branch
 ======
 
-==================  ===================================================================
-IOSC_INS CORE_PC    jump directly
-ALU_RE CORE_PC      jump conditionly when result is caculation by jump_condition module
-==================  ===================================================================
+Branch instruction is "CORE_CR  CORE_PC".
+The full operation is that check if two datas match some relationship,
+and according the result to select one of the target address as the output.
+There are 6 inputs:
+
+================  ====  =================
+input             term  source
+================  ====  =================
+data0             D0    DR0
+data1             D1    DR1
+codition          CO    CR
+branch address    BA    AR
+next PC           NP    Program Counter
+================  ====  =================
+
+So the expression is if (D0 CO D1) then BA else NP.
+
+Condition encode:
+
+=======  ========
+Type     Encode
+=======  ========
+<        8'h01
+==       8'h02
+>        8'h03
+!<       8'h04
+!=       8'h05
+!>       8'h06
+=======  ========
 

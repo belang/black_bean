@@ -37,7 +37,7 @@ black_bean black_bean_0(
 always #5 clk = !clk;
 
 initial begin
-    $readmemh("test_case/test_case2.bmb", memory.reg_stored_data);
+    $readmemh("test_case/tc_1.bmh", memory.reg_stored_data);
     clk = 1'b0;
     rst_n = 1'b0;
     #22 rst_n = 1'b1;

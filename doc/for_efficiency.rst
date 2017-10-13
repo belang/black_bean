@@ -241,3 +241,9 @@ IOs exchange data directly
 ==========================
 
 exchange a large mount of data directly.
+
+Brancher
+========
+
+If CR is zero or not in the values of brancher code,
+the brancher keeps down to save power.
