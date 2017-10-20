@@ -48,4 +48,10 @@ Record the daily work.
   next: doc and branche BAI.
 - 2017-10-12
   question: how to support addressing mode in parse?
-     each mode function get the one part(source or target) of the instruction
+  each mode function get the one part(source or target) of the instruction
+- 2017-10-13
+  Considering that memory read and write are two ports of core,
+  so the two action can be doing at the same time.
+  But the IO count is not enough.
+  So keep current design.
+  Change: transfer data state in decoder is memory access action.

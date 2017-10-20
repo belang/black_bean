@@ -8,7 +8,7 @@
     else is NPC.
 */
 
-`include "define.v"
+`include "../../define.v"
 
 module jump_condition(
     clk,

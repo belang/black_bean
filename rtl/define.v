@@ -25,8 +25,8 @@
 `define ALU_AD          4'h9
 `define SKIN_NULL2      4'ha
 `define SKIN_NULL3      4'hb
-`define SKIN_INS_PC     4'hc
-`define SKIN_INS_AR     4'hd
+`define SKIN_MEM_PC     4'hc
+`define SKIN_MEM_AR     4'hd
 `define SKIN_OTH        4'he
 `define SKIN_NULL       4'hf
 
@@ -42,14 +42,15 @@
 `define INDEX_EN_ALU_AD  9
 `define INDEX_EN_NULL2  10
 `define INDEX_EN_NULL3  11
-`define INDEX_EN_INS_PC 12
-`define INDEX_EN_INS_AR 13
+`define INDEX_EN_MEM_PC 12
+`define INDEX_EN_MEM_AR 13
 `define INDEX_EN_OTH    14
 `define INDEX_EN_NULL4  15
 
 // Config Register --  ALU encode
-`define CALU_COMPARER    8'h01
-`define CALU_JUMP_CON    8'h02
+`define ALU_ADD         8'h01
+`define ALU_COMPARER    8'h10
+`define ALU_JUMP_CON    8'h11
 
 
 

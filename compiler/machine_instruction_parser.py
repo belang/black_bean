@@ -23,8 +23,8 @@ assemble_pattern = {
 
 BMI_pattern = {
         'return'        : r"\n",
-        'data'          : r"\d+'h[a-c0-9]+",
-        'command'       : r"(CORE_\S*)|(SKIN_\S*)|(ALU_\S*)"
+        'data'          : r"\d+'h[a-f0-9]+",
+        'command'       : r"(CORE_[_A-Z0-9]*)|(SKIN_[_A-Z0-9]*)|(ALU_[_A-Z0-9]*)"
         }
 
 BMI_map = {
@@ -40,8 +40,8 @@ BMI_map = {
         'ALU_AD'          : '9',
         'CORE_EMPTY'      : 'a',
         'CORE_EMPTY'      : 'b',
-        'SKIN_INS_PC'     : 'c',
-        'SKIN_INS_AR'     : 'd',
+        'SKIN_MEM_PC'     : 'c',
+        'SKIN_MEM_AR'     : 'd',
         'SKIN_OTH'        : 'e',
         'SKIN_NULL'       : 'f'
 }
@@ -59,7 +59,7 @@ def analyse_bmi_patter(contents):
             #yield bbc.verilog_number_to_binary_string(lexical_str)
             yield bbc.verilog_number_to_hex(lexical_str)
         elif lexical_type == 'command':
-            print(lexical_str)
+            #print(lexical_str)
             yield "".join(BMI_map[name] for name in lexical_str.split(' '))
             # next
         else:
@@ -83,15 +83,6 @@ def parse_check_file_type(string):
     else:
         raise argparse.ArgumentTypeError("{} is not a file or dir".format(string))
 
-def parse_check_out_file_type(string):
-    """check if it is a directory"""
-    if string == ARGS.input_file:
-        raise argparse.ArgumentTypeError("output directory should not the same as the input directory")
-    if os.path.isdir(string):
-        return string
-    else:
-        raise argparse.ArgumentTypeError("{} is not a dir".format(string))
-
 ## environment parse
 
 PARSER = argparse.ArgumentParser(description='Bean assembly instruction compiler.')
@@ -99,7 +90,6 @@ PARSER.add_argument('input_file',
                    type=parse_check_file_type,
                    help='single input file or all .bba files in a directory.')
 PARSER.add_argument('-o', metavar='output directory', dest='output_file',
-                   type=parse_check_out_file_type, default='output',
                    help='single output file or directory.')
 
 ARGS = PARSER.parse_args()
@@ -107,25 +97,35 @@ ARGS = PARSER.parse_args()
 CONFIG = configparser.ConfigParser()
 CONFIG.read(join(ROOT, 'config.ini'))
 
-def compile_file(fone, fdir='.'):
+def compile_file(fone, fout):
     """ compile one file """
     if os.stat(fone).st_size > int(CONFIG['DEFAULT']['BMI_file_size']):
         raise Exception("File size exceeds the limitation.")
     if fone.endswith('bmi'):
-        out_file = join(fdir, "{}bmh".format(fone[0:-3]))
-        convert_bmi_to_bmh(fone, out_file)
+        convert_bmi_to_bmh(fone, fout)
     else:
         raise Exception("file type error.")
 
 def machine_instruction_parser(args):
     """main process, support parse a directory or a single file."""
     if os.path.isfile(args.input_file):
-        compile_file(args.input_file, args.output_file)
+        if args.output_file is None:
+            toutput_file = "{}bmh".format(args.input_file[0:-3])
+        compile_file(args.input_file, toutput_file)
     elif os.path.isdir(args.input_file):
+        if args.output_file is None:
+            try:
+                os.path.mkdir("output")
+            except:
+                raise Exception("Can't create directory: output")
+        elif os.path.isdir(args.output_file):
+            pass
+        else:
+            raise Exception("Output directory is wrong")
         for root, dirs, files in os.walk(args.input_file):
             o_sub_root = root.lstrip(args.input_file)[1:]
             for fone in files:
-                compile_file(fone, join(args.output_file, o_sub_root))
+                compile_file(fone, join(args.output_file, o_sub_root, fone)[0:-3])
         else:
             raise Exception("arguments parse Error.")
     else:

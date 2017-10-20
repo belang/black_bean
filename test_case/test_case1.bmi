@@ -1,0 +1,5 @@
+SKIN_INS_PC CORE_DR0      
+8'h01                     
+SKIN_INS_PC CORE_AR       
+8'h10                     
+CORE_DR0    SKIN_INS_AR   

@@ -3,7 +3,7 @@
 // author: lianghy
 // time: 2017-8-11 15:50:12
 
-`include "define.v"
+`include "../define.v"
 
 module mem_controller(
     clk,

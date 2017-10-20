@@ -1,0 +1,23 @@
+SKIN_INS_PC CORE_DR0   
+SKIN_INS_PC CORE_AR    
+SKIN_INS_PC CORE_AR    
+8'h40                  
+CORE_DR0    SKIN_INS_AR
+SKIN_INS_PC CORE_DR0   
+8'h00                  
+SKIN_INS_PC CORE_AR    
+8'h41                  
+CORE_DR0    SKIN_INS_AR
+SKIN_INS_PC CORE_DR0   
+SKIN_INS_AR CORE_DR1   
+SKIN_INS_PC CORE_AR    
+8'h42                  
+CORE_DR0    SKIN_INS_AR
+SKIN_INS_PC CORE_DR0   
+CORE_NULL   CORE_NULL  
+SKIN_INS_PC CORE_AR    
+8'h43                  
+CORE_DR0    SKIN_INS_AR
+SKIN_INS_PC CORE_PC    
+8'h40                  
+CORE_NULL   CORE_NULL  

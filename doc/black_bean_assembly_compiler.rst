@@ -1,7 +1,3 @@
-============================
-Black Bean Assembly compiler
-============================
-
 Introduction
 ============
 
@@ -50,13 +46,21 @@ an "output" directory is created in current directory as the default output dire
 BAI Parser
 ==========
 
-BAI Parser is a package of python, provides function to program in the Bean Assembly Language.
+BAI Parser parse the .bai file to a python object. The python object will be converted to binery file by BAI converter.
+
+BAI Converter
+=============
+
+BAI Converter is a package of python, provides function to program in the Bean Assembly Language.
 With this package, programmer can write assembly program in a python style.
-The basic class is AssemblyParser.
-To generate .bmh file for simulation, call AssemblyParser.generate_BMH(),
-To generate .bmi file as a assembly file, call AssemblyParser.generate_BMI(),
-To generate .bmb file as a binary file, call AssemblyParser.generate_BMB(),
-To excute these instructions, call AssemblyParser.run().
+The basic class is AssemblyConverter.
+To generate .bmh file for simulation, call AssemblyConverter.generate_BMH(),
+To generate .bmi file as a assembly file, call AssemblyConverter.generate_BMI(),
+To generate .bmb file as a binary file, call AssemblyConverter.generate_BMB(),
+To excute these instructions, call AssemblyConverter.run().
+
+
+
 
 Addressing Mode
 ---------------
@@ -73,9 +77,9 @@ memory indirect   @8'h01   mem(mem('1'))
 ================  =======  =======
 
 
-
 branch(data(01), mem(02), "==", 'x')
 
+-------------------------------------------------------------------------------------
 
 Memory Management
 -----------------
@@ -131,6 +135,8 @@ Each Black Bean Assembly Instruction is an instruction function of class BAIComp
 When call the instruction function, the function will generate the Machine Instruction.
 To generate the BMI file, call BAICompiler.generate_BMI(*file*).
 :TODO: To run the assembly instruction, call BAICompiler.excute().
+
+
 
 B Language compiling
 ====================

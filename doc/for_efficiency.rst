@@ -246,4 +246,13 @@ Brancher
 ========
 
 If CR is zero or not in the values of brancher code,
+
 the brancher keeps down to save power.
+
+READ IR and TRANS DATA
+======================
+
+When an instruction is not access memory, then in the next clock period,
+read next instruction and transfer data can be done at the same time.
+So the enable signals must provide two transfer paths, of which one is from memory to IR,
+the other is from core to core.

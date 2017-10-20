@@ -3,7 +3,7 @@
 // author: lianghy
 // time: 2017-05-19
 
-`include "define.v"
+`include "../define.v"
 
 module regfile(
     clk,

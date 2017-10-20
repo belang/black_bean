@@ -3,7 +3,7 @@
 // author: lianghy
 // time: 2017-8-11 13:55:21
 
-`include "define.v"
+`include "../../define.v"
 
 module comparer(
     clk,

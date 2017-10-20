@@ -6,7 +6,7 @@
     data registers except PC are in here.
 */
 
-`include "define.v"
+`include "../define.v"
 
 module common_register(
     clk,
@@ -59,16 +59,17 @@ end
 
 // data bus
 assign cr_data_in = (|i_unit_oen[14:12]) ? i_skin_data :
-        (|i_unit_oen[11:1]) ?  : i_core_data) : `DATA_WIDTH'h0;
+        (|i_unit_oen[11:1]) ? i_core_data : `DATA_WIDTH'h0;
 
 // Convenient Instruction: DR0+1, branch,
 assign o_reg_value = 
-    (i_unit_ien[`INDEX_EN_DR0] ? ( i_unit_oen[`INDEX_EN_DR0]) ? reg_DR0+1     : reg_DR0 ) : `DATA_WIDTH'h0) |
-    (i_unit_ien[`INDEX_EN_CR]  ? ( i_unit_oen[`INDEX_EN_PC])  ? i_branch_addr : reg_CR  ) : `DATA_WIDTH'h0) |
+    (i_unit_oen[`INDEX_EN_DR0] ? ( i_unit_ien[`INDEX_EN_DR0] ? reg_DR0+1     : reg_DR0 ) : `DATA_WIDTH'h0) |
+    (i_unit_oen[`INDEX_EN_CR]  ? ( i_unit_ien[`INDEX_EN_PC]  ? i_branch_addr : reg_CR  ) : `DATA_WIDTH'h0) |
     (i_unit_oen[`INDEX_EN_IR]  ? reg_IR        : `DATA_WIDTH'h0) |
     (i_unit_oen[`INDEX_EN_PC]  ? reg_PC        : `DATA_WIDTH'h0) |
     (i_unit_oen[`INDEX_EN_AR]  ? reg_AR        : `DATA_WIDTH'h0) |
     (i_unit_oen[`INDEX_EN_DR1] ? reg_DR1       : `DATA_WIDTH'h0) ;
+    //(i_unit_oen[`INDEX_EN_NULL]? `DATA_WIDTH'h0: `DATA_WIDTH'h0) |
 
 assign o_instruction    = reg_IR;
 assign o_program_count  = reg_PC;

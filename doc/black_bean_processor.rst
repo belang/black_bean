@@ -38,8 +38,11 @@ state       discription
 IDLE        initial state, hard reset
 PAUSE       do not deal with input
 READ_IR     read instruction
-TRANS_DA    read data or write data
+TRANS_DA    access the memory or move core data [1]_
 ==========  ========================================
+
+.. [1] The data bus and the enable signals are unique,
+   and DECODER get instruction from reg_IR.
 
 .. MOVE        data transfers between core regs and ALU
    SET_CR      set ALU config

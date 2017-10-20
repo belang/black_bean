@@ -43,7 +43,7 @@ Data Flow
 Instruction Source
 ------------------
 
-The instruction is only from the IOSC_INS or from other location such as IOSC_OTH, Core_output?
+The instruction is only from the IOSC_MEM or from other location such as IOSC_OTH, Core_output?
 Currentlly, it is from all place.
 
 Addressing

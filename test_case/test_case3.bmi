@@ -1,0 +1,23 @@
+SKIN_MEM_PC CORE_DR0    
+8'hff
+SKIN_MEM_PC CORE_AR     
+8'h50                   
+CORE_DR0    SKIN_MEM_AR
+CORE_NULL   CORE_DR0    
+SKIN_MEM_PC CORE_AR     
+8'h50                   
+SKIN_MEM_AR CORE_DR1    
+SKIN_MEM_PC CORE_CR     
+8'h03
+SKIN_MEM_PC CORE_AR     
+8'h0f
+CORE_CR     CORE_PC     
+SKIN_MEM_PC CORE_AR     
+8'h60                   
+CORE_NULL   SKIN_MEM_AR
+SKIN_MEM_PC CORE_DR0    
+8'h01
+SKIN_MEM_PC CORE_AR     
+8'h60                   
+CORE_DR0    SKIN_MEM_AR
+CORE_NULL   CORE_NULL   
