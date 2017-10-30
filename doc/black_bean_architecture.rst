@@ -1,6 +1,13 @@
-============
-Architecture
-============
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   Instruction Set Architecture <black_bean_instruction_set_architecture.rst>
+   Addressing Mode <architecture/addressing.rst>
+   Bean program <black_bean_program.rst>
+   Bean Language test case <test_case.rst>
+
 
 Introduction
 ============

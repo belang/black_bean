@@ -124,6 +124,13 @@ When write address is the PC, it changes the origin proram!
 
 The address of other devices is only from AR.
 
+The indirect addressing mode is only for function call.
+
+The program is organized in page.
+So to access one line, the target address is address in the program puls the base address of the page.
+
+:TODO: add a base address register to store the base address.
+
 Branch
 ======
 

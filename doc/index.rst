@@ -13,10 +13,8 @@ Contents:
 
    introduction.rst
    terms.rst
-   black_bean_architecture.rst
-   Instruction Set Architecture <black_bean_instruction_set_architecture.rst>
+   Architecture <black_bean_architecture.rst>
    processor <black_bean_processor.rst>
-   black_bean_assembly_language.rst
    Black Bean Assembly compiler <black_bean_assembly_compiler.rst>
    test cast <test_case.rst>
    efficiency <for_efficiency.rst>

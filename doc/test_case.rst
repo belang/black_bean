@@ -103,3 +103,16 @@ CORE_DR1    SKIN_OTH
 CORE_NULL   CORE_NULL      (exit)
 
 
+
+BAI
+===
+
+f = Function("tc4")
+f.let('x', '0')
+f.let('y', '0')
+f.dang('x', '<', '11')
+f.add('y', 'y', 'x')
+f.add('x', 'x', '1') or f.sadd('x')
+f.end()
+f.out('y')
+f.exit()

@@ -1,6 +1,36 @@
 ############
 Introduction
 ############
+
+Machine instructions is just an interface between the program and processer.
+How to write a program is not only associated with the machine instructions
+but also a subject about algorithm and data structure and so on.
+
+A complete program should include memory allocation,
+
+Here, black bean architecture will define a series of rules about
+how to do memory allocation.
+
+#################
+Memory Allocation
+#################
+
+Page
+====
+
+The bean architecture organizes the memory as books and pages.
+
+A book is a program, include the source code and the running space.
+
+Each page is considered as a paper note page, on which lines have been printed.
+Each line has one byte.
+
+
+The page number is on the foot, 
+
+############
+Introduction
+############
 Bean assembly language consits of two parts: bean machine instruction and bean assembly instruction.
 A program can be writen in any one of the two instruction, or both.
 The BAI do not have the same instruction as BMI.
@@ -56,6 +86,9 @@ Bean Assembly Instruction
 #########################
 
 Bean Assembly Instruction(BAI) is the instruction for convenient program.
+
+Memory Management
+=================
 
 Addressing Mode
 ===============
@@ -136,3 +169,4 @@ data                       8'h**          datas are written in hexadecimal.
 veriable                   [_0-9a-zA-Z]   veriable names and keys.
 expr                                      expression of bean assembly instruction
 =========================  =============  ======================================================
+

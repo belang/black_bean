@@ -52,6 +52,9 @@ BAI Converter
 =============
 
 BAI Converter is a package of python, provides function to program in the Bean Assembly Language.
+It does not optimize the program.
+The Bean python program is excuted line by line.
+
 With this package, programmer can write assembly program in a python style.
 The basic class is AssemblyConverter.
 To generate .bmh file for simulation, call AssemblyConverter.generate_BMH(),
@@ -59,6 +62,88 @@ To generate .bmi file as a assembly file, call AssemblyConverter.generate_BMI(),
 To generate .bmb file as a binary file, call AssemblyConverter.generate_BMB(),
 To excute these instructions, call AssemblyConverter.run().
 
+Register of the instructions is defined as an attribute.
+Such as "self.reg.dr0" means "CORE_DR0"
+:TODO: change self.reg.dr0 to reg.dr0?
+       reg = Registers()
+
+Memory Allocation
+-----------------
+
+Ask for free lines
+~~~~~~~~~~~~~~~~~~
+next
+
+write data to lines
+~~~~~~~~~~~~~~~~~~~
+
+
+Variable
+--------
+
+Generate a new variable:
+
+1. check variable name in the namespace
+2. ask for a free line in data page
+3. write data to the line
+4. write variable name to the namespace
+5. write variable point address to the namespace.
+
+Static variables are stored, and the statement of define the variables is not excute in a compiled program.
+If the source code is excuted dynamitcly, SetVariable function allocates memory for the variables.
+
+==========  ===========
+attribute   value
+==========  ===========
+name        string
+type        interge
+address     line number
+==========  ===========
+
+local variable
+~~~~~~~~~~~~~~
+
+=============  ==================
+attribute      value
+=============  ==================
+page           page number
+variable_list  all local variable
+=============  ==================
+
+
+Block
+-----
+
+Bean Assembly Instruction uses block namespace to locate the loop block start and end lines.
+When starts a loop, set a block name and the relevant line number.
+
+Bean Assembly Instruction uses namespace to locate each function start and end lines.
+When a program call a function of another program, from the block space,
+it searches the start line of the function.
+
+While
+~~~~~
+
+parse source::
+
+   start_line_stack.append(start_line_number)
+   branche( v1 v2 con endblock)
+   block body
+   back_to_start_line(start_line_stack.pop())
+   end_line_stack.append(end_line_number)
+
+fill block label(called by endwhile)::
+
+   for line in while_block():
+      if end_line_label in line:
+         replace end_line_label with end_line_stack.pop()
+
+   check_while_block()
+
+
+generate_BAI():
+The block label points to a line, but the size() function cant get the line number.
+To get the line number, firstly genegrate a block label, then iterate each line to count the number.
 
 
 
@@ -137,44 +222,6 @@ To generate the BMI file, call BAICompiler.generate_BMI(*file*).
 :TODO: To run the assembly instruction, call BAICompiler.excute().
 
 
-
-B Language compiling
-====================
-
-COMPILER_CONFIG
----------------
-
-Memory Management
------------------
-
-Divide memory to different blocks.
-
-- program block
-
-  store the origin program.
-  load new program.
-
-- running block
-
-  variables and datas.
-
-
-=============  ==============================  ==================================
-pattern        regular expression              description
-=============  ==============================  ==================================
-null           `\s*`                           empty line  
-lable_ref      `^lable_[a-z0-9]+ [a-f0-9]+`    the target line of one block
-quote_lable    `^[a-z0-9_]+ lable_[a-z0-9]+`   quote the line number of the block
-=============  ==============================  ==================================
-
-Addressing Mode
----------------
-
-Supported mode:
-
-- direct addrssing.
-
-  all address is a directe address.
 
 
 
