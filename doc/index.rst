@@ -15,7 +15,8 @@ Contents:
    terms.rst
    Architecture <black_bean_architecture.rst>
    processor <black_bean_processor.rst>
-   Black Bean Assembly compiler <black_bean_assembly_compiler.rst>
+   Bean system <black_bean_system.rst>
+   Black Bean compiler <black_bean_compiler.rst>
    test cast <test_case.rst>
    efficiency <for_efficiency.rst>
    design_recore.rst

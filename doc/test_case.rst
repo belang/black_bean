@@ -1,6 +1,16 @@
 
 Test case directory contains test vector in arsembly language.
 
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   testbench/euler.rst
+
+BAI
+===
+
 test case 1
 -----------
 
@@ -104,8 +114,26 @@ CORE_NULL   CORE_NULL      (exit)
 
 
 
-BAI
-===
+
+
+B Language
+==========
+
+tc4
+---
+
+code
+~~~~
+
+x = 0
+y = 0
+while x < 11:
+   y = y+x
+   x = x+1 (x = x++)
+print(x)
+
+interpreter
+~~~~~~~~~~~
 
 f = Function("tc4")
 f.let('x', '0')
@@ -116,3 +144,13 @@ f.add('x', 'x', '1') or f.sadd('x')
 f.end()
 f.out('y')
 f.exit()
+
+
+tc5
+---
+
+f.let('x', 'a')
+f.print('x')
+f.let('x', 'xyz')
+f.print('x')
+
