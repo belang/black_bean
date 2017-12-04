@@ -60,3 +60,8 @@ Record the daily work.
 - 2017-11-01
   The first step is to interpret the code, and the seconde is to optimize the code.
   The interpreted code can excute directly.
+- 2017-11-15
+  adjust the state machine of the tokenizer.
+- 2017-11-21
+  generate the assembly command.
+  generate the simulation hexadecimal string code.

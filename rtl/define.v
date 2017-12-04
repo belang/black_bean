@@ -13,22 +13,22 @@
 `define ACTION_READ_PC  2'b11
 
 // core reg encode
-`define CORE_NULL       4'h0
-`define CORE_IR         4'h1
-`define CORE_PC         4'h2
-`define CORE_AR         4'h3
-`define CORE_DR0        4'h4
-`define CORE_DR1        4'h5
-`define CORE_CR         4'h6
-`define CORE_NULL1      4'h7
+`define REG_NULL        4'h0
+`define REG_IR          4'h1
+`define REG_PC          4'h2
+`define REG_AR          4'h3
+`define REG_DR0         4'h4
+`define REG_DR1         4'h5
+`define REG_CR          4'h6
+`define REG_NULL1       4'h7
 `define ALU_RE          4'h8
 `define ALU_AD          4'h9
-`define SKIN_NULL2      4'ha
-`define SKIN_NULL3      4'hb
-`define SKIN_MEM_PC     4'hc
-`define SKIN_MEM_AR     4'hd
-`define SKIN_OTH        4'he
-`define SKIN_NULL       4'hf
+`define MEM_NULL2       4'ha
+`define MEM_NULL3       4'hb
+`define MEM_PC          4'hc
+`define MEM_AR          4'hd
+`define MEM_OTH         4'he
+`define MEM_NULL        4'hf
 
 `define INDEX_EN_NULL    0
 `define INDEX_EN_IR      1

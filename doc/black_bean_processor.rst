@@ -73,10 +73,10 @@ the ioen is decoded directly from the i_target.
 ==========  ====================================================
 state       output instruction
 ==========  ====================================================
-IDLE        ISC_INS, CORE_IR
+IDLE        MEM, REG_IR
 PAUSE       Null
 READ_IR     input instruction
-TRANS_DA    ISC_INS, CORE_IR
+TRANS_DA    MEM, REG_IR
 ==========  ====================================================
 
 Data Register
@@ -88,14 +88,14 @@ Convenient Instruction
 Plus 1
 ~~~~~~
 
-- Instruction: *CORE_DR0 CORE_DR0*
+- Instruction: *REG_DR0 REG_DR0*
 
 - Realize: If the source and target are both reg_DR0, then the o_reg_value is reg_DR0+1.
 
 Branch Instruction
 ------------------
 
-- Instruction: *CORE_CR CORE_PC*
+- Instruction: *REG_CR REG_PC*
 
 - Realize: The o_reg_value is set to brancher.
 
@@ -108,19 +108,19 @@ It counts the number of the program by the next instruction.
 
 1. set PC from input data
 
-   - * CORE_PC : means jump where address is from PC or AR
+   - * REG_PC : means jump where address is from PC or AR
 
 2. current PC plus 1
 
-   - ISC_INS_PC !CORE_PC    : means read instruction
+   - MEM_PC !REG_PC    : means read instruction
 
 3. hold current value
 
    other conditions:
 
-   - ISC_INS_AR !CORE_PC        : means read data
-   - CORE_*      ISC_INS_*      : means write
-   - CORE_NULL   ISC_INS_NULL   : means pause
+   - MEM_AR    !REG_PC        : means read data
+   - REG_*     MEM_*      : means write
+   - REG_NULL  MEM_NULL   : means pause
 
 
 ALU
@@ -136,11 +136,11 @@ and dr_1.
 For example, if dr_0 is 1 and dr_1 is 20, the result is large.
 The result is the ascii of >, <, =, and their combination.
 
-SKIN_INS_AR
+MEM_AR
 ===========
 
 Instruction interface has two address port, for addressing.
-SKIN_INS_AR/PC deside using which address.
+MEM_AR/PC deside using which address.
 
 DATA BUS
 ========

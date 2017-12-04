@@ -1,0 +1,16 @@
+let DR0 8'h01
+block a
+add1
+jump a
+
+IOSC_INS_PC CORE_DR0
+8'h01
+CORE_DR0 CORE_DR0
+IOSC_INS_PC CORE_PC
+8'h02
+
+c4
+01
+44
+c2
+02

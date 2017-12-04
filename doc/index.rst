@@ -19,6 +19,7 @@ Contents:
    Black Bean compiler <black_bean_compiler.rst>
    test cast <test_case.rst>
    efficiency <for_efficiency.rst>
+   Network <network.rst>
    design_recore.rst
 
 
