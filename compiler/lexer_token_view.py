@@ -6,59 +6,22 @@
 
 """build statement structure from token list"""
 
-__statement_key_list = ["if", "while"]
 
 def create_new_stmt(token, token_list=None):
     """create a statement by the type and cached token."""
     if token.tvalue == "=":
-        return StmtAssg(token_list)
+        return TokenStmtAssg(token_list)
     elif token.tvalue == "while":
-        return StmtWhile(token_list)
+        return TokenStmtWhile(token_list)
     else:
         raise Exception("Unkown statement type: {}:{}".format(token.ttype, token.tvalue))
 
-def analyse_morphology(token_list):
-    """main function"""
-    state = "idle"
-    stmt_list = []
-    cached_tk = []
-    for token in token_list:
-        if state == "idle":
-            if token.ttype == "nextline":
-                continue
-            if token.ttype == "indent":
-                cached_tk.append(token)
-                continue
-            if token.ttype == "variable":
-                if token.tvalue in __statement_key_list:
-                    stmt_list.append(create_new_stmt(token, None))
-                    cached_tk = []
-                    state = "add token"
-                else:
-                    state = "variable"
-                    cached_tk.append(token)
-            else:
-                raise Exception("Error in start of the statement.")
-        elif state == "add token":
-            stmt_list[-1].add_token(token)
-            if stmt_list[-1].stmt_is_complete is True:
-                state = "idle"
-        elif state == "variable":
-            if token.ttype == "operator" and token.tvalue == "=":
-                stmt_list.append(create_new_stmt(token, cached_tk))
-                cached_tk = []
-                state = "add token"
-            else:
-                raise Exception("Wrong statement state.")
-        else:
-            raise Exception("Wrong statement state.")
-    return stmt_list
 
 class TokenExprAtom(object):
     """Form: od0 op od1"""
     def __init__(self, atom_id=0, op=None, od0=None, od1=None):
         super(TokenExprAtom, self).__init__()
-        self.opt = op
+        self.op = op
         self.od0 = od0
         self.od1 = od1
         self.atom_id = atom_id
@@ -67,10 +30,7 @@ class TokenExprAtom(object):
         pass
     def value(self):
         """compute the result of the expression"""
-        return (self.od0, self.opt, self.od1)
-    def write_data(self):
-        """docstring for write_data"""
-        pass
+        return (self.od0, self.op, self.od1)
 
 
 class TokenExpr(object):
@@ -230,14 +190,50 @@ class TokenLexer():
         self.token_list = token_list
         self.stmt_list = []
         self.__bean_language_key_list = ["if", "else", "while", "break", "exit", "end"]
+        self.__statement_key_list = ["if", "while"]
 
-        self.stmt_list = analyse_morphology(self.token_list)
-    def formular(self):
-        """docstring for formular"""
-        pass
-    def value(self):
-        """compute the result of the expression"""
-        pass
+        self.analyse_morphology()
+    def analyse_morphology(self):
+        """main function"""
+        print("generate token view.")
+        state = "idle"
+        cached_tk = []
+        for token in self.token_list:
+            if state == "idle":
+                if token.ttype == "nextline":
+                    continue
+                if token.ttype == "indent":
+                    cached_tk.append(token)
+                    continue
+                if token.ttype == "variable":
+                    if token.tvalue in self.__statement_key_list:
+                        self.stmt_list.append(create_new_stmt(token, None))
+                        cached_tk = []
+                        state = "add token"
+                    else:
+                        state = "variable"
+                        cached_tk.append(token)
+                else:
+                    raise Exception("Error in start of the statement.")
+            elif state == "add token":
+                self.stmt_list[-1].add_token(token)
+                if self.stmt_list[-1].stmt_is_complete is True:
+                    state = "idle"
+            elif state == "variable":
+                if token.ttype == "operator" and token.tvalue == "=":
+                    self.stmt_list.append(create_new_stmt(token, cached_tk))
+                    cached_tk = []
+                    state = "add token"
+                else:
+                    raise Exception("Wrong statement state.")
+            else:
+                raise Exception("Wrong statement state.")
+        def formular(self):
+            """docstring for formular"""
+            pass
+        def value(self):
+            """compute the result of the expression"""
+            pass
 
 
 

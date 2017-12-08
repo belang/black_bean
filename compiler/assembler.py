@@ -11,7 +11,7 @@ from os.path import join
 import re
 import argparse
 import configparser
-import black_bean_common_func as bbc
+import common_func as bbc
 
 assemble_pattern = {
         'null'                  :   r'\s*'                          ,
@@ -65,71 +65,21 @@ def analyse_bai_patter(contents):
         else:
             raise Exception("Unkown patter: {}".format(lexical_type))
 
-def convert_bai_to_bmh(in_file, out_file):
+def convert_bai_to_bmh(in_file, out_file, config):
     """convert BAI to a binary string file for initial the memory when simulating the verilog."""
+    print("start assembler! source file is {}, and target file is {}".format(in_file, out_file))
+    if os.stat(fone).st_size > int(config['DEFAULT']['BAI_file_size']):
+        raise Exception("File size exceeds the limitation.")
+    if fone.endswith('bai'):
+        assembler.convert_bai_to_bmh(fone, fout)
+    else:
+        raise Exception("file type error.")
     with open(in_file, 'r') as fin:
         all_content = fin.read()
     with open(out_file, 'w') as fout:
         #fout.writelines(["{}\n".format(x) for x in analyse_bmi_patter(all_content)])
         fout.writelines([x for x in analyse_bai_patter(all_content)])
 
-ROOT = os.path.dirname(os.path.realpath(__file__))
-def parse_check_file_type(string):
-    """check if it is a file or directory"""
-    if os.path.isfile(string):
-        return string
-    elif os.path.isdir(string):
-        return string
-    else:
-        raise argparse.ArgumentTypeError("{} is not a file or dir".format(string))
-
-## environment parse
-
-PARSER = argparse.ArgumentParser(description='Bean assembly instruction compiler.')
-PARSER.add_argument('input_file',
-                    type=parse_check_file_type,
-                    help='single input file or all .bba files in a directory.')
-PARSER.add_argument('-o', metavar='output directory', dest='output_file',
-                    help='single output file or directory.')
-
-ARGS = PARSER.parse_args()
-
-CONFIG = configparser.ConfigParser()
-CONFIG.read(join(ROOT, 'config.ini'))
-
-def convert_file(fone, fout):
-    """ compile one file """
-    if os.stat(fone).st_size > int(CONFIG['DEFAULT']['BAI_file_size']):
-        raise Exception("File size exceeds the limitation.")
-    if fone.endswith('bai'):
-        convert_bai_to_bmh(fone, fout)
-    else:
-        raise Exception("file type error.")
-
-def machine_instruction_parser(args):
-    """main process, support parse a directory or a single file."""
-    if os.path.isfile(args.input_file):
-        if args.output_file is None:
-            toutput_file = "{}bmh".format(args.input_file[0:-3])
-        convert_file(args.input_file, toutput_file)
-    elif os.path.isdir(args.input_file):
-        if args.output_file is None:
-            try:
-                os.path.mkdir("output")
-            except:
-                raise Exception("Can't create directory: output")
-        elif os.path.isdir(args.output_file):
-            pass
-        else:
-            raise Exception("Output directory is wrong")
-        for root, dirs, files in os.walk(args.input_file):
-            o_sub_root = root.lstrip(args.input_file)[1:]
-            for fone in files:
-                convert_file(fone, join(args.output_file, o_sub_root, fone)[0:-3])
-        else:
-            raise Exception("arguments parse Error.")
-    else:
-        raise Exception("arguments parse Error.")
 
 if __name__ == "__main__":
     machine_instruction_parser(ARGS)

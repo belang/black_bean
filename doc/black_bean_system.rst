@@ -35,16 +35,19 @@ exit           exit
 black          ' '                                 empty
 return         '\n'                                new line
 for            for x in list: first: then: last:   
+new_           new var = data                      allocate a new memory space for the variable.
 =============  ==================================  ==============
 
-.. _assignment: refence_
-.. _refence: 
-   In Bean program, assignment means the new variable point to the target variable,
-   the refence means the new variable point to the data addresss that the target variable pointed to.
-   Refence only supports varialbe refence now.
+.. _assignment: new_
+.. _new: 
+   In Bean program, assignment means the variable point to value address of the source variable or data.
+   When assign with a 'new' statement, allocate new memory space for the variable, and save the value to the new space.
    For example,
    When "a = 8'h30", the data 8'h30 is stored in 8'h50, and the data of a is 8'h50, a is stored in 8'h10.
-   When "b = a", variable b is stored in 8'h11, and its data is 8'h10.
+   When "b = a", variable b is stored in 8'h11, and its data is 8'h50.
+   When "new b = a", variable b is stored in 8'h11, and its data is 8'h51, and the value(data in 8'h51) is 8'h10.
+   For string type, "b = 'abcd'", b is stored in 8'h10, its value is 8'h20, and "abcd" is stored in 8'h20-8'h23.
+   Next assignment, "b = b+'efg'", "efg" may be stored in other places for example 8'h30-32.
 .. _expr:  expr is caculate from left to right.
    Don't support multi assignment in one line such as y=x=3.
 

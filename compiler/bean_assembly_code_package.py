@@ -9,6 +9,8 @@ String: memory address or assembly code
 token:  immediate data
 NSVar:  variable saved in namespace"""
 
+import common_func as cf
+
 NULL = "REG_NULL"
 IR   = "REG_IR"
 PC   = "REG_PC"
@@ -23,27 +25,31 @@ MPC  = "MEM_PC"
 MAR  = "MEM_AR"
 OTH  = "MEM_OTH"
 
-class AssemblyCommand(object):
-    """docstring for AssemblyCommand"""
-    def __init__(self, source, target):
-        self.source = source
-        self.target = target
+def ir(source, target):
+    return "{} {}".format(source, target)
 
 class LoadData(object):
-    """load data from mem"""
+    """load data from mem[addr] to target"""
     def __init__(self, target, addr):
         super(LoadData, self).__init__()
         self.addr = addr
         self.target = target
-        self.code_lines = 2
+        self.code_lines = 3
+    def gen_simu_code(self):
+        return [ir(MPC, AR), "\n",
+                cf.hex_str(self.addr.physical_addr), "\n",
+                ir(MAR, self.target), "\n"]
 
-class LoadOP(object):
-    """load data from mem"""
-    def __init__(self, op, addr):
-        super(LoadOP, self).__init__()
-        self.op = op
+class LoadCR(object):
+    """load cr code from mem"""
+    def __init__(self, addr):
+        super(LoadCR, self).__init__()
         self.addr = addr
-        self.code_lines = 2
+        self.code_lines = 3
+    def gen_simu_code(self):
+        return [ir(MPC, AR), "\n",
+                cf.hex_str(self.addr.physical_addr), "\n",
+                ir(MAR, CR), "\n"]
 
 class SetCR(object):
     """set cr by immediate data"""
@@ -51,13 +57,19 @@ class SetCR(object):
         super(SetCR, self).__init__()
         self.data = op_code
         self.code_lines = 2
+    def gen_simu_code(self):
+        return [ir(MPC, CR), "\n",
+                cf.int_str_to_hex_str(self.data), "\n"]
 
 class SetAR(object):
     """set ar by immediate data"""
     def __init__(self, addr):
         super(SetAR, self).__init__()
-        self.data = addr
+        self.addr = addr
         self.code_lines = 2
+    def gen_simu_code(self):
+        return [ir(MPC, AR), "\n",
+                self.addr.physical_addr, "\n"]
 
 class SetData(object):
     """set immediate data"""
@@ -66,6 +78,9 @@ class SetData(object):
         self.data = data
         self.target = target
         self.code_lines = 2
+    def gen_simu_code(self):
+        return [ir(MPC, self.target), "\n",
+                cf.int_str_to_hex_str(self.data), "\n"]
 
 class SaveData(object):
     """save register to memory by the addr"""
@@ -74,13 +89,21 @@ class SaveData(object):
         self.source = source
         self.addr = addr
         self.code_lines = 2
+    def gen_simu_code(self):
+        return [ir(MPC, AR), "\n",
+                cf.hex_str(self.addr.physical_addr), "\n",
+                ir(self.source, MAR), "\n"]
 
 class SaveRE(object):
     """save arithmetic logic unit result to memory by the addr"""
     def __init__(self, addr):
         super(SaveRE, self).__init__()
-        self.target = addr
+        self.addr = addr
         self.code_lines = 2
+    def gen_simu_code(self):
+        return [ir(MPC, AR), "\n",
+                cf.hex_str(self.addr.physical_addr), "\n",
+                ir(RE, MAR), "\n"]
 
 if __name__ == "__main__":
     print("bean_assembly_code_package.py")

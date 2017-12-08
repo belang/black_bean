@@ -64,6 +64,7 @@ class LineTokenizer(object):
             }
     def analize_line(self, line):
         """analize lexcier by line."""
+        print("start tokenlize.")
         self._line_state = "idle"
         self._line_pointer = 0
         self._current_line = line

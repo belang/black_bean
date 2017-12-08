@@ -5,7 +5,11 @@
 # time: 2017-8-4 17:18:11
 """There are some common functions."""
 
-def hex_str(width, int_num):
+def int_str_to_hex_str(int_str, width=8):
+    """For example, convert 10 to 0a"""
+    return hex(int(int_str))[2:].rjust(width, '0')
+
+def hex_str(int_num, width=8):
     """convert a int type number to hexadecimal string type.
     For example, convert 10 to 0a"""
     return hex(int_num)[2:].rjust(width, '0')
@@ -36,7 +40,7 @@ def verilog_number_to_hex(vstr):
         tnew = tvlist[1][-1*bit_len:]
     return tnew
 
-def int_to_verilog_hex(width, vstr):
+def int_to_verilog_hex(vstr, width=8):
     """10 to 8'h0a"""
     return "{}'h{}".format(width, hex(vstr)[2:].rjust(int(int(width)/4), '0'))
 
