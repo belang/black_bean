@@ -20,6 +20,7 @@ Program
 ::
 
    x0=0
+   y=0
    d3=3
    d6=6
    d9=9
@@ -28,7 +29,7 @@ Program
    d10 = 10
    d15 = 15
    
-   while x < 1000
+   while x < 30
       y = y+x0+d3
       y = y+x0+d6
       y = y+x0+d9

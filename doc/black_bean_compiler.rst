@@ -1,6 +1,10 @@
 Introduction
 ============
 
+Bean language file ends with .bean
+Bean assembley file ends with .bas
+Bean simulation file ends with .bmh
+
 This compiler has these function:
 
 1. Converts Bean Machine Instruction in string form to binary(hexadecimal) string for verilog simulation.
@@ -9,61 +13,40 @@ This compiler has these function:
 
 Usage:
 
-BMI file:  python compiler.py file.bmi
+BMI file:  python compiler.py file.bea
 
-Compiler:
+Compiler
+========
 
    Tokenlizer  -> Token_list
-   Lexer       -> assembly code
+   Lexer       -> statement structure
+   Parse       -> statement object
+   Generator   -> assembly code
    Assembler   -> binary file or simu file
+   Linker      -> import file or package
 
+Debug
+-----
+
+1. show the memory variable allocation.
 
 Bean Assembler
 ==============
 
-Bean Assembly Pattern
----------------------
-
-Assemble pattern are shown as follow:
-
-return          `\n`
-    new line, keep
-
-data            `\d'h\d+`
-    data
-
-command         `(CORE_\w*)|(SKIN_\w*)|(ALU_\w*)`
-    normal machine instruction
+All data in .bas file is writen in hexadecimal without prefix.
 
 Algorithm
 ---------
 
-To convert the BMI file, the command is `python machine_instruction_parser.py file/dir [-o dir]`
-The output file is the same name with the BMI file, but with differnet suffixes as *bmh*.
-If given an output directory, all output file is export to that directory with the same heirachy as the input directory.
-If the source is a directory, and the output directory is not provided,
-an "output" directory is created in current directory as the default output directory.
+The output file is the same name with the BAS file, but with differnet suffixes as *bmh*.
 
 1. check file size, make sure the file is smaller tham 1M.
-2. check file suffixe is *bai*.
-3. read in all, and convert to benary/hexadecimal string.
+2. check file suffixe is *bas*.
+3. read in all
 
-
-Bean Language Lexier
-====================
-
-data type only support decimal type.
-
-==========  ===================================
-process     discription
-==========  ===================================
-tokenizer   get the token
-lexer       form the structure of the statement
-parser      analyse the program function
-==========  ===================================
 
 Tokenizer
----------
+=========
 
 Get all token of the program.
 The token is a class, with attribute ttype and tvalue.
@@ -82,8 +65,14 @@ continue    in the middle of a stmt
 
 When get in a new state, deal with the last state: finish or continue it.
 
+Function
+--------
+
+1. convert the Decimal numbers to Hexadecimal.
+
+
 Lexer
------
+=====
 
 =============  =======================================================================
 TokenView      recognize the statement type, and then get all tokens of the statement;
@@ -104,6 +93,15 @@ third, allocate the memory to the run_page;
 last, change the virtual address in the assembly code to the true address.
 
 
+Parser
+======
+
+1. parse_structure: split lines or composed statement into atom statement.
+2. parse_variable: create variable in namespace.
+3. generate_code_with_var: generate codes object with variable in it.
+4. allocate_mem_space(get code size): allocate memory space, for example code page, static varialbe lines, temp varialbe lines.
+5. caculate_physical_addr: caculate the physical address of the memory element.
+   For dynamic variables, allocate the space to them by order in one statement, and reset the dynamic space pointer at the end of the statement.
 
 
 
@@ -111,6 +109,8 @@ Structure
 =========
 
 files:
+
+
 
 bb_assembly_compiler.py is the main file.
 

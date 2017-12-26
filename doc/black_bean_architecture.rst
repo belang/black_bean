@@ -33,23 +33,23 @@ Instruction Set
 ==============  =======  =======  =========================================================
 unit            encode   china    discription
 ==============  =======  =======  =========================================================
-REG_NULL       0000     空白     zero as source, null as target.
-REG_IR         0001     指令     instruction register
-REG_PC         0010     程序     program counter
-REG_AR         0011     地址     address register
-REG_DR0        0100     第一     operand register 0
-REG_DR1        0101     第二     operand register 1
-REG_CR         0110     算术     config register, not export data in it.
-REG_BR         0111     分支     RESERVED 【branch config (relation, not full code)】
+REG_NULL        0000     空白     zero as source, null as target.
+REG_IR          0001     指令     instruction register
+REG_PC          0010     程序     program counter
+REG_AR          0011     地址     address register
+REG_DR0         0100     第一     operand register 0
+REG_DR1         0101     第二     operand register 1
+REG_CR          0110     算术     config register, not export data in it.
+REG_BR          0111     分支     RESERVED 【branch config (relation, not full code)】
 ALU_RE          1000     结果     ALU normal result
 ALU_AD          1001     例外     ALU additional result
 EMPTY           1010     保留     RESERVED
 EMPTY           1011     保留     RESERVED
 ==============  =======  =======  =========================================================
-MEM_PC     1100     控制     address from PC
-MEM_AR     1101     原材     address from AR
-MEM_OTH        1110     其它     another MEM ports.
-MEM_NULL       1111     外空     no io action, used for multi-cycle arithmetic
+MEM_PC          1100     控制     address from PC
+MEM_AR          1101     原材     address from AR
+MEM_OTH         1110     其它     another MEM ports.
+MEM_NULL        1111     外空     no io action, used for multi-cycle arithmetic
 ==============  =======  =======  =========================================================
 
 One 8-bit instruction consists of 4-bit source code and 4-bit target code.
@@ -70,33 +70,33 @@ Machine Instruction
 type  machine instruction  description
 ====  ===================  ===============================================
 0     source target        read source and send data to target
-1     MEM_* REG_*        read MEM, write register
-2     REG_* MEM_*        read register, write MEM
-3     ALU_*  MEM_*        write ALU result to MEM
-4     REG_* REG_*        register to register
-5     ALU_*  REG_*        ALU result to register
-6     MEM_* MEM_*        RESERVED
+1     MEM_*    REG_*       read MEM, write register
+2     REG_*    MEM_*       read register, write MEM
+3     ALU_*    MEM_*       write ALU result to MEM
+4     REG_*    REG_*       register to register
+5     ALU_*    REG_*       ALU result to register
+6     MEM_*    MEM_*       RESERVED
 ====  ===================  ===============================================
-0.1   REG_PC REG_PC      hold, redo 
-0.2   REG_CR *            special instruction.
-0.3   MEM_NULL            RESERVED
-0.4   *  ALU_*             RESERVED
-0.5   *  REG_CR           config the ALU and enable its export.
-1.1   MEM_AR REG_*   the address is from AR
-1.2   MEM_PC REG_*   the address is from PC
-2.1   REG_* MEM_AR   the address is from AR, 
-2.2   REG_* MEM_PC   RESERVED
-2.3   REG_* MEM_OTH      the address is from AR
-3.1   ALU_*  MEM_*        the same as the REG_*
+0.1   REG_PC REG_PC        hold, redo 
+0.2   REG_CR *             special instruction.
+0.3   MEM_NULL             RESERVED
+0.4   *     ALU_*          RESERVED
+0.5   *     REG_CR         config the ALU and enable its export.
+1.1   MEM_AR REG_*         the address is from AR
+1.2   MEM_PC REG_*         the address is from PC
+2.1   REG_* MEM_AR         the address is from AR, 
+2.2   REG_* MEM_PC         RESERVED
+2.3   REG_* MEM_OTH        the address is from AR
+3.1   ALU_* MEM_*          the same as the REG_*
 
 spcecial instruction:
 
 ===================  ===============================================
-REG_NULL REG_NULL  stop
-x_x      REG_IR     read instruction
-x_x      REG_PC     jump
-REG_CR  REG_PC     branch
-REG_DR0 REG_DR0    DR0 <=  DR0 + 1
+REG_NULL REG_NULL    stop
+x_x      REG_IR      read instruction
+x_x      REG_PC      jump
+REG_CR   REG_PC      branch
+REG_DR0  REG_DR0     DR0 <=  DR0 + 1
 ===================  ===============================================
 
 Branch
@@ -112,7 +112,7 @@ input             term  source
 ================  ====  =================
 data0             D0    DR0
 data1             D1    DR1
-codition          CO    CR
+condition         CO    CR
 branch address    BA    AR
 next PC           NP    Program Counter
 ================  ====  =================
@@ -140,9 +140,9 @@ To secify ALU funtion, write data to CR.
 ==============  =======  =========================================================
 ALU             encode   discription
 ==============  =======  =========================================================
-ALU_ADD         8'h01    interge add
-ALU_COMPARER    8'h00    en
-ALU_JUMP_CON    8'h01    en
+ALU_ADD         8'h11    interge add
+ALU_COMPARER    8'h10    en
+ALU_JUMP_CON    8'h11    en
 ==============  =======  =========================================================
 
 Addressing 

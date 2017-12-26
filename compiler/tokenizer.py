@@ -11,6 +11,7 @@ Usage::
 """
 
 import re
+import common_func as cf
 
 ## Tokenizer #################################################
 class Token():
@@ -25,6 +26,8 @@ class Token():
         """docstring for new_token"""
         if self._type == "indent":
             self._value = self._value//4
+        if self._type == "data":
+            self._value = cf.int_str_to_hex_str(self._value)
 
     @property
     def ttype(self):
@@ -49,7 +52,7 @@ class LineTokenizer(object):
         self.__reguler_expretion = {
             "alphabet":r"[a-z,A-Z]",
             "var_char":r"[a-z,A-Z,0-9,_]",
-            "operator":r":|=|+|-|*|/|\(|\)|<",
+            "operator":r":|=|\+|-|\*|/|\(|\)|<|!",
             "data_item":r"0|1|2|3|4|5|6|7|8|9|\.",
             "string":r'"'
             }
@@ -57,14 +60,15 @@ class LineTokenizer(object):
         self._token_state_machine = {
             "idle" : self._state_idle,
             "indent" : self._state_indent,
-            "first var": self._state_first_var,
+            "first var": self._state_search_first_var,
             "variable" : self._state_variable,
             "next token" : self._state_next_token,
             "data" : self._state_data,
+            "operator" : self._state_operator,
             }
+        print("start tokenlize.")
     def analize_line(self, line):
         """analize lexcier by line."""
-        print("start tokenlize.")
         self._line_state = "idle"
         self._line_pointer = 0
         self._current_line = line
@@ -77,29 +81,28 @@ class LineTokenizer(object):
         if cchar == ' ':
             self._line_state = "indent"
         else:
-            self._state_first_var(cchar)
+            self._state_search_first_var(cchar)
     def _state_indent(self, cchar):
         """the first string is empty"""
         if cchar == ' ':
             self._line_state = "indent"
         else:
             self.token_list.append(Token("indent", self._line_pointer))
-            self._state_first_var(cchar)
-    def _state_first_var(self, cchar):
+            self._state_search_first_var(cchar)
+    def _state_search_first_var(self, cchar):
         """the first variable"""
         self._line_state = "first var"
         if cchar == '\n' or cchar == '#':
             self.token_list.append(Token("nextline", None))
             self._line_state = "end line"
+        elif re.fullmatch(self.__reguler_expretion["alphabet"], cchar):
+            self._line_state = "variable"
+            self._token_start_pos = self._line_pointer
         else:
-            if re.fullmatch(self.__reguler_expretion["alphabet"], cchar):
-                self._line_state = "variable"
-                self._token_start_pos = self._line_pointer
-            else:
-                print("current state: {}".format(self._line_state))
-                print("current line: {}".format(self._current_line))
-                print("current line position: {}".format(self._line_pointer))
-                raise Exception("unkown charactor: {}".format(cchar))
+            print("current state: {}".format(self._line_state))
+            print("current line: {}".format(self._current_line))
+            print("current line position: {}".format(self._line_pointer))
+            raise Exception("unkown charactor: {}".format(cchar))
     def _state_variable(self, cchar):
         """complete a variable """
         if re.fullmatch(self.__reguler_expretion["var_char"], cchar):
@@ -122,8 +125,8 @@ class LineTokenizer(object):
             self._line_state = "data"
             self._token_start_pos = self._line_pointer
         elif cchar in self.__reguler_expretion["operator"]:
-            self.token_list.append(Token("operator", cchar))
-            self._line_state = "next token"
+            self._token_start_pos = self._line_pointer
+            self._line_state = "operator"
         else:
             raise Exception("unkown charactor: {}".format(cchar))
     def _state_data(self, cchar):
@@ -134,7 +137,19 @@ class LineTokenizer(object):
             self.token_list.append(Token("data", self._current_line[self._token_start_pos:self._line_pointer]))
             self._line_state = "next token"
             self._state_next_token(cchar)
-
+    def _state_operator(self, cchar):
+        """search a data"""
+        if re.fullmatch(self.__reguler_expretion["operator"], cchar, False):
+            operator = self._current_line[self._token_start_pos:self._line_pointer]
+            import bean_language
+            if operator in bean_language.OPERATOR:
+                self.token_list.append(Token("operator", operator))
+            else:
+                raise Exception("Unkown operator {}".format(operator))
+        else:
+            self.token_list.append(Token("operator", self._current_line[self._token_start_pos]))
+        self._line_state = "next token"
+        self._state_next_token(cchar)
 
 if __name__ == "__main__":
     print("tokenizer.py")

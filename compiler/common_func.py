@@ -7,12 +7,15 @@
 
 def int_str_to_hex_str(int_str, width=8):
     """For example, convert 10 to 0a"""
-    return hex(int(int_str))[2:].rjust(width, '0')
+    #data = int(int_str)
+    #if data > 2**width:
+        #raise Exception("data exceed: ", int_str)
+    return hex(int(int_str))[2:].rjust(width//4, '0')
 
 def hex_str(int_num, width=8):
     """convert a int type number to hexadecimal string type.
     For example, convert 10 to 0a"""
-    return hex(int_num)[2:].rjust(width, '0')
+    return hex(int_num)[2:].rjust(width//4, '0')
 
 def verilog_number_to_binary_string(vstr):
     """convert a verilog number such as 8'h9a to a binary string as 10011010."""

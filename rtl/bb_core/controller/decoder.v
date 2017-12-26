@@ -19,7 +19,7 @@
 `define REG_EN_DR0          16'b0000000000010000
 `define REG_EN_DR1          16'b0000000000100000
 `define REG_EN_CR           16'b0000000001000000
-`define REG_EN_NULL1        16'b0000000010000000
+`define REG_EN_DR2          16'b0000000010000000
 `define ALU_EN_RE           16'b0000000100000000
 `define ALU_EN_AD           16'b0000001000000000
 `define MEM_EN_NULL2        16'b0000010000000000
@@ -90,11 +90,11 @@ end
 always @(reg_state, i_ins) begin
     case (reg_state)
         `STATE_IDLE: begin
-            unit_source = `MEM_MEM_PC;
+            unit_source = `MEM_PC;
             unit_target = `REG_IR;
         end
         `STATE_PAUSE: begin
-            unit_source = `MEM_MEM_PC;
+            unit_source = `MEM_PC;
             unit_target = `REG_IR;
         end
         `STATE_READ_IR: begin
@@ -102,7 +102,7 @@ always @(reg_state, i_ins) begin
             unit_target = i_ins[3:0];
         end
         `STATE_TRANS_DA: begin
-            unit_source = `MEM_MEM_PC;
+            unit_source = `MEM_PC;
             unit_target = `REG_IR;
         end
         default: begin
@@ -136,8 +136,8 @@ always @(unit_target) begin
         `REG_CR: begin
             n_unit_ien = `REG_EN_CR;
         end
-        `REG_NULL1: begin
-            n_unit_ien = `REG_EN_NULL1;
+        `REG_DR2: begin
+            n_unit_ien = `REG_EN_DR2;
         end
         `ALU_RE: begin
             n_unit_ien = `ALU_EN_RE;
@@ -151,10 +151,10 @@ always @(unit_target) begin
         `MEM_NULL3: begin
             n_unit_ien = `MEM_EN_NULL3;
         end
-        `MEM_MEM_PC: begin
+        `MEM_PC: begin
             n_unit_ien = `MEM_EN_MEM_PC;
         end
-        `MEM_MEM_AR: begin
+        `MEM_AR: begin
             n_unit_ien = `MEM_EN_MEM_AR;
         end
         `MEM_OTH: begin
@@ -192,8 +192,8 @@ always @(unit_source) begin
         `REG_CR: begin
             n_unit_oen = `REG_EN_CR;
         end
-        `REG_NULL1: begin
-            n_unit_oen = `REG_EN_NULL1;
+        `REG_DR2: begin
+            n_unit_oen = `REG_EN_DR2;
         end
         `ALU_RE: begin
             n_unit_oen = `ALU_EN_RE;
@@ -207,10 +207,10 @@ always @(unit_source) begin
         `MEM_NULL3: begin
             n_unit_oen = `MEM_EN_NULL3;
         end
-        `MEM_MEM_PC: begin
+        `MEM_PC: begin
             n_unit_oen = `MEM_EN_MEM_PC;
         end
-        `MEM_MEM_AR: begin
+        `MEM_AR: begin
             n_unit_oen = `MEM_EN_MEM_AR;
         end
         `MEM_OTH: begin

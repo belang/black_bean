@@ -33,7 +33,7 @@ input [`DATA_WIDTH-1:0] i_branch_addr;
 output [`DATA_WIDTH-1:0] o_address_reg, o_operand0, o_operand1, o_config_reg, o_program_count, o_instruction;
 output [`DATA_WIDTH-1:0] o_reg_value;
 
-reg [`DATA_WIDTH-1:0] reg_AR, reg_DR0, reg_DR1, reg_CR, reg_IR, reg_PC;
+reg [`DATA_WIDTH-1:0] reg_AR, reg_DR0, reg_DR1, reg_CR, reg_DR2, reg_IR, reg_PC;
 //wire [`DATA_WIDTH-1:0] reg_PC ;
 wire [`DATA_WIDTH-1:0] cr_data_in; // skin or core data
 
@@ -43,6 +43,7 @@ always @(posedge clk) begin
         reg_AR  <= `DATA_WIDTH'h0;
         reg_DR0 <= `DATA_WIDTH'h0;
         reg_DR1 <= `DATA_WIDTH'h0;
+        reg_DR2 <= `DATA_WIDTH'h0;
         reg_CR  <= `DATA_WIDTH'h0;
         reg_IR  <= `DATA_WIDTH'h0;
         reg_PC  <= `DATA_WIDTH'h0;
@@ -52,6 +53,7 @@ always @(posedge clk) begin
         reg_DR0 <= i_unit_ien[4] ? cr_data_in : reg_DR0;
         reg_DR1 <= i_unit_ien[5] ? cr_data_in : reg_DR1;
         reg_CR  <= i_unit_ien[6] ? cr_data_in : reg_CR ;
+        reg_DR2 <= i_unit_ien[7] ? cr_data_in : reg_DR2;
         reg_PC  <= i_unit_ien[2] ? cr_data_in :
                 (i_unit_oen[12]) ? reg_PC+1 : reg_PC;
     end
@@ -68,7 +70,8 @@ assign o_reg_value =
     (i_unit_oen[`INDEX_EN_IR]  ? reg_IR        : `DATA_WIDTH'h0) |
     (i_unit_oen[`INDEX_EN_PC]  ? reg_PC        : `DATA_WIDTH'h0) |
     (i_unit_oen[`INDEX_EN_AR]  ? reg_AR        : `DATA_WIDTH'h0) |
-    (i_unit_oen[`INDEX_EN_DR1] ? reg_DR1       : `DATA_WIDTH'h0) ;
+    (i_unit_oen[`INDEX_EN_DR1] ? reg_DR1       : `DATA_WIDTH'h0) |
+    (i_unit_oen[`INDEX_EN_DR2] ? reg_DR2       : `DATA_WIDTH'h0) ;
     //(i_unit_oen[`INDEX_EN_NULL]? `DATA_WIDTH'h0: `DATA_WIDTH'h0) |
 
 assign o_instruction    = reg_IR;

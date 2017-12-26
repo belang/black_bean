@@ -21,6 +21,7 @@ Contents:
    efficiency <for_efficiency.rst>
    Network <network.rst>
    design_recore.rst
+   design_plan.rst
 
 
 Indices and tables

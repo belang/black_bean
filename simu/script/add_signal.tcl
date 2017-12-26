@@ -47,6 +47,7 @@ sim:/testbench/black_bean_0/bb_core_0/common_register_0/o_reg_value \
 sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_AR \
 sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_DR0 \
 sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_DR1 \
+sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_DR2 \
 sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_CR \
 sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_IR \
 sim:/testbench/black_bean_0/bb_core_0/common_register_0/reg_PC \

@@ -20,7 +20,7 @@
 `define REG_DR0         4'h4
 `define REG_DR1         4'h5
 `define REG_CR          4'h6
-`define REG_NULL1       4'h7
+`define REG_DR2         4'h7
 `define ALU_RE          4'h8
 `define ALU_AD          4'h9
 `define MEM_NULL2       4'ha
@@ -37,9 +37,9 @@
 `define INDEX_EN_DR0     4
 `define INDEX_EN_DR1     5
 `define INDEX_EN_CR      6
-`define INDEX_EN_NULL1   7
-`define INDEX_EN_ALU_RE  8
-`define INDEX_EN_ALU_AD  9
+`define INDEX_EN_DR2     7
+`define INDEX_EN_RE      8
+`define INDEX_EN_AD      9
 `define INDEX_EN_NULL2  10
 `define INDEX_EN_NULL3  11
 `define INDEX_EN_MEM_PC 12
@@ -48,9 +48,9 @@
 `define INDEX_EN_NULL4  15
 
 // Config Register --  ALU encode
-`define ALU_ADD         8'h01
-`define ALU_COMPARER    8'h10
-`define ALU_JUMP_CON    8'h11
+`define ALU_ADD         8'h11
+`define ALU_COMPARER    8'h01
+`define ALU_JUMP_CON    8'h10
 
 
 
