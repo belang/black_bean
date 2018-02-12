@@ -240,6 +240,10 @@ def lexer(token_list):
                 stmt_list.append(create_new_stmt(token, cached_tk))
                 cached_tk = []
                 state = "add token"
+            elif token.ttype == "dot":
+                stmt_list.append(create_new_stmt(token, cached_tk))
+                cached_tk = []
+                state = "add token"
             else:
                 raise Exception("Wrong statement state.")
         else:

@@ -1,0 +1,14 @@
+# set counter mode
+# set, load
+
+counter 8'hf0
+while true
+    if interrupt == 8'h81
+        counter trigger
+    else
+        if dr0 == 8'h10
+            mc reset
+    if counter == 8'hf3
+        port1 8'h10
+    else
+        port1 8'h01

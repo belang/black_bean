@@ -27,8 +27,14 @@ when write, the address is always in AR.
 Instruction Set
 ===============
 
+Type one: transfer instruction
+------------------------------
+
+
+One instruction consists of source and target code.
+
 8-bit IS Encode
----------------
+~~~~~~~~~~~~~~~
 
 ==============  =======  =======  =========================================================
 unit            encode   china    discription
@@ -64,7 +70,7 @@ Not all combinations of instructions are valid, MEM_* to MEM_* is not supported 
 Because two outside devices io operation needs two address.
 
 Machine Instruction
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 ====  ===================  ===============================================
 type  machine instruction  description
@@ -100,7 +106,7 @@ REG_DR0  REG_DR0     DR0 <=  DR0 + 1
 ===================  ===============================================
 
 Branch
-------
+~~~~~~
 
 Branch instruction is "REG_CR  REG_PC".
 The full operation is that check if two datas match some relationship,
@@ -133,7 +139,7 @@ Type     Encode
 =======  ========
 
 ALU config
-----------
+~~~~~~~~~~
 
 To secify ALU funtion, write data to CR.
 
@@ -144,6 +150,11 @@ ALU_ADD         8'h11    interge add
 ALU_COMPARER    8'h10    en
 ALU_JUMP_CON    8'h11    en
 ==============  =======  =========================================================
+
+Type two: traget instruction
+----------------------------
+
+One instruction consists of target unit, data type specific, config code, operator and/or address.
 
 Addressing 
 ===========

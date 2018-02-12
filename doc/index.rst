@@ -14,6 +14,7 @@ Contents:
    introduction.rst
    terms.rst
    Architecture <black_bean_architecture.rst>
+   microcontroller <microcontroller/microcontroller.rst>
    processor <black_bean_processor.rst>
    Bean system <black_bean_system.rst>
    Black Bean compiler <black_bean_compiler.rst>

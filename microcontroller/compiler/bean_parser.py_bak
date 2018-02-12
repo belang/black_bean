@@ -1,0 +1,460 @@
+#! $PATH/python
+
+# file name: self.parser.py
+# author: lianghy
+# time: 2018/1/26 10:58:10
+"""from token to assembly code with object."""
+
+#import logging
+import bean_common_func as cf
+import bean_lexer as lex
+
+
+STMT_BLOCK_KEYS = ("if", "while")
+DEVICE = ("dr0", "dr1", "counter", "mc", "interrupt")
+OP_REL = (">", "<", "==", ">=", "<=", "!=")
+ALU = ("counter")
+ALU_CODE = {
+    "<" :"01",
+    "==":"02",
+    ">" :"03",
+    "!<":"04",
+    "!=":"05",
+    "!>":"06",
+    "true":"ff",
+    "false":"00",
+    "+":"10",
+    "-":"11",
+    "*":"12",
+    "/":"13",
+    "set_count":"20",
+    "auto_count":"21",
+    "trigger":"22",
+    "reset_count":"23",
+    "counter_out":"24"}
+
+class STMTParser():
+    """docstring for STMTParser"""
+    def __init__(self, uplevel):
+        super(STMTParser, self).__init__()
+        self.uplevel = uplevel
+        self._indent_level = 0
+        self._line_count = 0
+        self._block_end_code = []
+        self.code_list = []
+        self._cite_line_stack = []
+        self._line_num_stack = []
+        self._state = "newline"
+        self._sub_block = None
+        self.code_block = CodeParser()
+    def parse(self, token):
+        """docstring for parse"""
+        pass
+    def state_nextline(self, token):
+        """docstring for self.state_nextline"""
+        if token.ttype == "nextline":
+            self._state = "newline"
+        else:
+            raise Exception("lack return in line {}, current token is {}:{}".format(
+                token.line_num, token.ttype, token.tvalue))
+        
+class IfParser(STMTParser):
+    """docstring for IfParser"""
+    def __init__(self, uplevel):
+        super(IfParser, self).__init__(uplevel)
+        self._state = "if"
+    def parse(self, token):
+        """docstring for parse"""
+        if self._state == "if":
+            self.state_if(token)
+        elif self._state == "if_rel":
+            self.state_if_rel(token)
+        elif self._state == "if_right":
+            self.state_if_right(token)
+        elif self._state == "else":
+            self.state_else(token)
+        elif self._state == "nextline":
+            self.state_nextline(token)
+        elif self._state == "block":
+            self.code_block.parse(token)
+
+    def state_if(self, token):
+        """docstring for self.state_if"""
+        if token.ttype == "variable":
+            if token.tvalue in DEVICE:
+                if token.tvalue == "dr0":
+                    pass
+                else:
+                    self.code_load_dr0(token)
+                self._state = "if_rel"
+                self._indent_level += 1
+            else:
+                raise Exception("Unknown condition in line {}".format(token.line_num))
+        else:
+            raise Exception("Unknown condition in line {}".format(token.line_num))
+
+    def state_if_rel(self, token):
+        """docstring for self.state_if"""
+        if token.tvalue in OP_REL:
+            self.code_set_cr(token)
+            self._state = "if_right"
+        else:
+            raise Exception("not a device in line {}".format(token.line_num))
+
+    def state_if_right(self, token):
+        """docstring for self.state_if"""
+        if token.ttype == "data":
+            self._state = "nextline"
+            self.code_set_dr1(token)
+            self.code_if_stmt()
+        elif token.tvalue == "dr0":
+            raise Exception("DR0 must be on the left side, in line {}".format(token.line_num))
+        else:
+            raise Exception("not a device in line {}".format(token.line_num))
+
+    def state_else(self, token):
+        """docstring for self.state_else"""
+        if token.ttype == "nextline":
+            self._state = "nextline"
+            self.code_else()
+        else:
+            raise Exception("not a device in line {}".format(token.line_num))
+
+    def state_end_block(self):
+        """docstring for self.state_end_block"""
+        end_code_length = len(self._block_end_code)
+        while end_code_length > 0:
+            if self._block_end_code[-1][0] < self._indent_level:
+                break
+            new_code = self._block_end_code.pop()[1]
+            self.code_list = self.code_list+new_code
+            self._line_count += len(new_code)
+            end_code_length = len(self._block_end_code)
+        if token.tvalue == "else":
+            pass
+        else:
+            self.set_jump_addr()
+        self._state = token.tvalue
+
+
+
+class CodeParser(STMTParser):
+    """docstring for CodeParser"""
+    def __init__(self, arg):
+        super(CodeParser, self).__init__()
+        self.arg = arg
+    def __call__(self, token_list, indent_level):
+        self._indent_level = indent_level
+        for token in token_list:
+            if self._state == "newline":
+                self.state_newline(token)
+            elif self._state == "var":
+                self.state_var(token)
+            elif self._state == "sub_block":
+                self.state_sub_block(token)
+            else:
+                raise Exception("Unkown state: {}, token value: {}, in line {}".format(
+                    self._state, token.tvalue, token.line_num))
+    def state_var(self, token):
+        """docstring for self.state_variable"""
+        if token.ttype == "variable":
+            #if token.tvalue in STMT_BLOCK_KEYS:
+            if token.tvalue == "if":
+                self._sub_block = IfParser(self)
+                self._state = "sub_block"
+                # next
+            else:
+                self._state = token.tvalue
+        else:
+            raise Exception("lack indent in line {}".format(token.line_num))
+    def state_sub_block(self, token):
+        """docstring for state_sub_block"""
+        self._sub_block.parse(token)
+        if self._sub_block._state == "end_block":
+            self._state = "newline"
+            self.state_newline(token)
+
+class Parser():
+    """docstring for Parser"""
+    def __init__(self):
+        super(Parser, self).__init__()
+        self._indent_level = 0
+        self.code_list = []
+        self._block_end_code = []
+        self._line_count = 0
+        self._cite_line_stack = [] # (indent level, line number)
+        self._line_num_stack = []
+        self._state = "newline"
+    def __call__(self, token_list, indent_level):
+        """docstring for self.__call__"""
+        self._indent_level = indent_level
+        for token in token_list:
+            if self._state == "newline":
+                self.state_newline(token)
+            elif self._state == "nextline":
+                self.state_nextline(token)
+            elif self._state == "var":
+                self.state_var(token)
+            elif self._state == "end_block":
+                self.state_end_block(token)
+            elif self._state == "if":
+                self.state_if(token)
+            elif self._state == "if_rel":
+                self.state_if_rel(token)
+            elif self._state == "if_right":
+                self.state_if_right(token)
+            elif self._state == "else":
+                self.state_else(token)
+            elif self._state == "while":
+                self.state_while(token)
+            elif self._state == "dr0":
+                self.state_dr0(token)
+            elif self._state == "counter":
+                self.state_counter(token)
+            elif self._state == "mc":
+                self.state_mc(token)
+                #### next
+            elif self._state == "port1":
+                self.state_port1(token)
+            else:
+                raise Exception("Unkown state: {}, token value: {}, in line {}".format(
+                    self._state, token.tvalue, token.line_num))
+
+    ## function
+    def add_code(self, code):
+        """add one line code and increase line number"""
+        self.code_list.append(code)
+        self._line_count += 1
+
+    def set_jump_addr(self):
+        """set jump target address of a block to current line"""
+        self.code_list[self._cite_line_stack.pop()[1]] = cf.int_str_to_hex_str(self._line_count)
+
+    ## code
+    def code_load_dr0(self, token):
+        """set dr0 as token value, token is a device."""
+        if token.tvalue == "interrupt":
+            self.add_code("ROM PA")
+            self.add_code("00")
+            self.add_code("PD DR0")
+        elif token.tvalue == "counter":
+            self.add_code("ROM CR")
+            self.add_code(ALU_CODE["counter_out"])
+            self.add_code("RE DR0")
+        else:
+            pass
+    def code_set_cr(self, token):
+        """set token value to dr0"""
+        self.add_code("ROM CR")
+        self.add_code(ALU_CODE[token.tvalue])
+    def code_set_dr1(self, token):
+        """set token value to dr0"""
+        self.add_code("ROM DR1")
+        self.add_code(cf.verilog_number_to_hex(token.tvalue))
+    def code_if_stmt(self):
+        """docstring for """
+        # in page position
+        self.add_code("ROM PC")
+        self.add_code("Lable")
+        self._cite_line_stack.append((self._indent_level, self._line_count))
+        self.add_code("PC PC")
+    def code_else(self):
+        """docstring for self.code_else"""
+        #set cr true
+        #jump to end()
+        #label the line for false condition of if.
+        self.add_code("ROM PC")
+        self.add_code("Lable")
+        self.set_jump_addr()
+        self._cite_line_stack.append(self._indent_level, self._line_count)
+    def code_while_jump_back(self):
+        """docstring for code_while_jump_back"""
+        code = ["ROM PC",
+            cf.int_num_to_hex_str(self._line_count),
+            "ROM CR",
+            "ff",
+            "PC PC"]
+        self._block_end_code.append(self._indent_level, code)
+
+    ## state
+    def state_nextline(self, token):
+        """docstring for self.state_nextline"""
+        if token.ttype == "nextline":
+            self._state = "newline"
+        else:
+            raise Exception("lack indent in line {}, token is {}:{}".format(
+                token.line_num, token.ttype, token.tvalue))
+    def state_newline(self, token):
+        """docstring for self.state_newline"""
+        if token.ttype == "indent":
+            if token.tvalue >= self._indent_level:
+                self._state = "var"
+            else:
+                self._indent_level = token.tvalue
+                self._state = "end_block"
+                self.state_end_block()
+        else:
+            raise Exception("lack indent in line {}, token is {}:{}".format(
+                token.line_num, token.ttype, token.tvalue))
+
+    def state_end_block(self, token):
+        """docstring for self.state_end_block"""
+        end_code_length = len(self._block_end_code)
+        while end_code_length > 0:
+            if self._block_end_code[-1][0] < self._indent_level:
+                break
+            new_code = self._block_end_code.pop()[1]
+            self.code_list = self.code_list+new_code
+            self._line_count += len(new_code)
+            end_code_length = len(self._block_end_code)
+        if token.tvalue == "else":
+            pass
+        else:
+            self.set_jump_addr()
+        self._state = token.tvalue
+
+    def state_var(self, token):
+        """docstring for self.state_variable"""
+        if token.ttype == "variable":
+            self._state = token.tvalue
+        else:
+            raise Exception("lack indent in line {}".format(token.line_num))
+
+    def state_if(self, token):
+        """docstring for self.state_if"""
+        if token.ttype == "variable":
+            if token.tvalue in DEVICE:
+                if token.tvalue == "dr0":
+                    pass
+                else:
+                    self.code_load_dr0(token)
+                self._state = "if_rel"
+                self._indent_level += 1
+            else:
+                raise Exception("Unknown condition in line {}".format(token.line_num))
+        else:
+            raise Exception("Unknown condition in line {}".format(token.line_num))
+
+    def state_if_rel(self, token):
+        """docstring for self.state_if"""
+        if token.tvalue in OP_REL:
+            self.code_set_cr(token)
+            self._state = "if_right"
+        else:
+            raise Exception("not a device in line {}".format(token.line_num))
+
+    def state_if_right(self, token):
+        """docstring for self.state_if"""
+        if token.ttype == "data":
+            self._state = "nextline"
+            self.code_set_dr1(token)
+            self.code_if_stmt()
+        elif token.tvalue == "dr0":
+            raise Exception("DR0 must be on the left side, in line {}".format(token.line_num))
+        else:
+            raise Exception("not a device in line {}".format(token.line_num))
+
+    def state_else(self, token):
+        """docstring for self.state_else"""
+        if token.ttype == "nextline":
+            self._state = "nextline"
+            self.code_else()
+        else:
+            raise Exception("not a device in line {}".format(token.line_num))
+    def state_while(self, token):
+        """state_while"""
+        if token.ttype == "variable":
+            self.code_while_jump_back()
+            if token.tvalue == "true":
+                # while true
+                self._state = "nextline"
+                self.code_set_cr(lex.Token(0, "variable", "true"))
+                self._line_num_stack.append(self._line_count)
+                self.code_if_stmt()
+            elif token.tvalue == "false":
+                # while false
+                self._state = "nextline"
+                self.code_set_cr(lex.Token(0, "variable", "false"))
+                self.code_if_stmt()
+            elif token.tvalue in DEVICE:
+                # next compare with if and set jump back address
+                if token.tvalue == "dr0":
+                    pass
+                else:
+                    self.code_load_dr0(token)
+                self._state = "if_rel"
+                self._indent_level += 1
+            else:
+                raise Exception("Unknown condition in line {}".format(token.line_num))
+        else:
+            raise Exception("Unknown condition in line {}".format(token.line_num))
+
+
+    ## device
+    def state_counter(self, token):
+        """docstring for self.state_counter"""
+        if token.ttype == "data":
+            self.add_code("ROM DR0")
+            self.add_code(cf.verilog_number_to_hex(token.tvalue))
+            self.add_code("ROM CR")
+            self.add_code("20")
+        elif token.tvalue in DEVICE:
+            self.code_load_dr0(token)
+            self.add_code("ROM CR")
+            self.add_code("20")
+        elif token.tvalue == "trigger":
+            self.add_code("ROM CR")
+            self.add_code("22")
+        self._state = "nextline"
+
+    def state_dr0(self, token):
+        """docstring for self.state_dr0"""
+        self._state = "nextline"
+        if token.ttype == "data":
+            self.add_code("ROM DR0")
+            self.add_code(cf.verilog_number_to_hex(token.tvalue))
+        elif token.tvalue in DEVICE:
+            self.code_load_dr0(token)
+        else:
+            pass
+
+    def state_mc(self, token):
+        """This is setting the microcontroller."""
+        if token.ttype == "data":
+            self.add_code("ROM DR0")
+            self.add_code(cf.verilog_number_to_hex(token.tvalue))
+            self.add_code("ROM CR")
+            self.add_code("20")
+        elif token.tvalue == "reset":
+            self.add_code("NULL PC")
+            self.add_code("NULL PC")
+            self.add_code("ROM CR")
+            self.add_code("00")
+            self.add_code("PC PC")
+        else:
+            pass
+        self._state = "nextline"
+
+    def state_port1(self, token):
+        """This is setting the port1 output."""
+        if token.ttype == "data":
+            self.add_code("ROM DR0")
+            self.add_code(cf.verilog_number_to_hex(token.tvalue))
+            self.add_code("ROM CR")
+            self.add_code("20")
+        elif token.tvalue in DEVICE:
+            self.code_load_dr0(token)
+            self.add_code("ROM CR")
+            self.add_code("20")
+        else:
+            pass
+        self._state = "nextline"
+
+def parse(token_list, indent_level=0):
+    """main"""
+    par = Parser(indent_level)
+    par(token_list)
+    return par
+
+if __name__ == "__main__":
+    print("self.parser.py")

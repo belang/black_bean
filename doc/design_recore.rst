@@ -65,3 +65,5 @@ Record the daily work.
 - 2017-11-21
   generate the assembly command.
   generate the simulation hexadecimal string code.
+- 2018-01-05
+  start design microcontroller.

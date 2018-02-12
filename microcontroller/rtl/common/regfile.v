@@ -3,7 +3,7 @@
 // author: lianghy
 // time: 2017-05-19
 
-`include "../define.v"
+`include "define.v"
 
 module regfile(
     clk,
@@ -38,7 +38,7 @@ reg inner_current_line_pointer[2**(`DATA_ADDR_WIDTH)-1:0];
 // input 
 always @(posedge clk) begin
     if (!rst_n) begin
-        reg_address       <= `DATA_WIDTH'b0      ;
+        reg_address       <= `DATA_ADDR_WIDTH'b0      ;
         //reg_i_data    <= `DATA_WIDTH'b0    ;
         //reg_output_data   <= `DATA_WIDTH'b0   ;
     end else begin
