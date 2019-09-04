@@ -1,58 +1,57 @@
-Introduction 
-=============
+########
+黑豆项目
+########
 
-Computability
-=============
+黑豆项目是一个计算机系统研究项目，研究的焦点是计算及其敏捷设计。
+它的研究对象从基本的数字逻辑电路到操作系统，还包括电路设计工具和方法。
+主要有三个方面：设计工具、设计语言（指令集）、处理器设计（架构和逻辑）。
 
-If some problem is computable, we can resolve it by some mathematic computing
-within estimate and receptable time. A problem is computable, we can use
-computer to get the result.
+它的研究点有：
 
-Computer consists of some parts: some relate with computing, and some with the
-interaction with person. Now let us focus on the computing parts.
-A simple computing model is as this: memory, processor, and interface.
-Memory usually stores the data(to process) and program(control the processor)
-seperatly.
-Processor processes the data according to the program.
-Interface exchange the data and program between memory and processor.
+1. 数字电路设计工具--小小, xiaoxiao, Tiny
+2. 芯片模型和行为仿真--暖风, nuanfeng, WarmWind
+3. 编译器--飞花, feihua, FlowFlower
+3. 元操作指令集--电元, yuanqi, BasicItem
+4. 基本处理器--坤后, kunhou, OnBasic
+5. 通用处理器--万化, wanhua, BeEvery
 
-Here, we consider that the computing and storage are separate.
-
-Processor
-=========
-
-A computing process consists of two parts: computing and computing flow.
-Computing is the single computing action such as add,
-flow is the order of the single action.
-The computing module is called arithmetic logic unit(ALU),
-the flow control module is called controller.
-The processor is controlled by the instruciton.
-All instructions of a processor is called instruciton set.
-
-Instruction Set
-===============
-
-Instruction is the interface between processor and person.
-The instruciton types are different according to the architecture of the
-different processors.
-
-Universal ISA
-=============
-
-The Instruction Set Architecture(ISA) detemines the processor structure.
-A program compiled to a certain IS, can excute on the same type processor.
-Across ISA, program usually need to be rewritten or changed some instructions,
-because the assembly languages are different.
-
-An instruction is usually consist of operation and operands.
-Different ISAs have different operations and different mounts and types of operands.
-The operations is excused by some logic circuits and the ALU.
-The operands may be flag, data or address.
+小小电路图
+==========
 
 
-Bean instruciton set is designed from the view of data flow.
-Each instruciton controls some buttons which enable or close some ports to get
-or send data.
-The data flows on various buses.
+小小(xiaoxiao)是一款图形化数字电路设计工具。
 
+暖风模拟器
+==========
+
+
+暖风是芯片模型和行为仿真工具。
+她提供基于小小的电路和功能模块模型，并进行行为级仿真验证。
+
+飞花编译器
+==========
+
+编译器
+
+电元指令集
+==========
+
+电元指令集是以数据搬运为基本操作。
+电元指令集处理器中，每个运算或控制都是通过一系列数据搬运实现。
+如加法运算，通过先搬运数据到操作数1和2，再搬运加法配置信息到ALU的控制端口，
+此时ALU实现加法，然后将ALU的结果搬运到目标寄存器中。
+实质是，加法指令的一直解码方式。
+电元指令集通过寻址的方式，实现数据传递。
+
+正形处理器
+==========
+
+正形是一款简单的，基本的处理器。它提供基本的运算和控制逻辑，单周期的指令周期。
+其主要目的是实现电元指令集结构和相应的工具链。
+
+发生处理器
+==========
+
+
+发生是基于电元的通用处理器。
 
